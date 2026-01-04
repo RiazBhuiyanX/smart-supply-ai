@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User roles for access control
+enum Role {
+  ADMIN
+  MANAGER
+  WAREHOUSE_OP
+  PROCUREMENT
+}
+
+// User model for authentication and authorization
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password_hash String
+  first_name    String
+  last_name     String
+  role          Role     @default(WAREHOUSE_OP)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("users")
+}
