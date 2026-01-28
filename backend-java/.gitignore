@@ -1,0 +1,28 @@
+# Compiled output
+target/
+*.class
+
+# Build files
+build.log
+build_output.txt
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.factorypath
+.settings/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
