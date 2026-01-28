@@ -74,6 +74,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints (no auth required)
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/products/**").permitAll()  // TODO: protect in production
                         
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
