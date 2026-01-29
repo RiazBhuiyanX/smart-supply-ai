@@ -85,6 +85,8 @@ public class SecurityConfig {
                         // Public endpoints (no auth required)
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
                         .requestMatchers("/products/**").permitAll()  // TODO: protect in production
+                        .requestMatchers("/warehouses/**").permitAll()  // TODO: protect in production
+                        .requestMatchers("/inventory/**").permitAll()  // TODO: protect in production
                         
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
