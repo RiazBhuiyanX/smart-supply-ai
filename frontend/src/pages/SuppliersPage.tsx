@@ -11,6 +11,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { SupplierDialog } from '@/components/SupplierDialog'
+import { useAuth } from '@/contexts/AuthContext'
+import { getPermissions } from '@/lib/permissions'
 
 interface Supplier {
   id: string
@@ -24,6 +26,9 @@ interface Supplier {
 
 export function SuppliersPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const permissions = getPermissions(user?.role)
+  
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -48,11 +53,19 @@ export function SuppliersPage() {
   }
 
   const handleAddNew = () => {
+    if (!permissions.canManageSuppliers) {
+      alert('You do not have permission to add suppliers.')
+      return
+    }
     setEditingSupplier(null)
     setDialogOpen(true)
   }
 
   const handleEdit = (supplier: Supplier) => {
+    if (!permissions.canManageSuppliers) {
+      alert('You do not have permission to edit suppliers.')
+      return
+    }
     setEditingSupplier(supplier)
     setDialogOpen(true)
   }
@@ -68,6 +81,10 @@ export function SuppliersPage() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!permissions.canManageSuppliers) {
+      alert('You do not have permission to delete suppliers.')
+      return
+    }
     if (!confirm('Are you sure you want to delete this supplier?')) return
     
     try {
@@ -83,9 +100,16 @@ export function SuppliersPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Suppliers 🤝</h1>
+          <div>
+            <h1 className="text-4xl font-bold text-white">Suppliers 🤝</h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Role: <span className="text-blue-400">{user?.role || 'Unknown'}</span>
+            </p>
+          </div>
           <div className="flex gap-4">
-            <Button onClick={handleAddNew}>+ Add Supplier</Button>
+            {permissions.canManageSuppliers && (
+              <Button onClick={handleAddNew}>+ Add Supplier</Button>
+            )}
             <Button variant="secondary" onClick={() => navigate('/purchase-orders')}>
               View Orders
             </Button>
@@ -107,7 +131,9 @@ export function SuppliersPage() {
             ) : suppliers.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-slate-400 mb-4">No suppliers found.</p>
-                <Button onClick={handleAddNew}>Add your first supplier</Button>
+                {permissions.canManageSuppliers && (
+                  <Button onClick={handleAddNew}>Add your first supplier</Button>
+                )}
               </div>
             ) : (
               <Table>
@@ -118,7 +144,9 @@ export function SuppliersPage() {
                     <TableHead className="text-slate-300">Email</TableHead>
                     <TableHead className="text-slate-300">Phone</TableHead>
                     <TableHead className="text-slate-300">Address</TableHead>
-                    <TableHead className="text-slate-300 text-center">Actions</TableHead>
+                    {permissions.canManageSuppliers && (
+                      <TableHead className="text-slate-300 text-center">Actions</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -129,24 +157,26 @@ export function SuppliersPage() {
                       <TableCell className="text-blue-400">{supplier.email || '-'}</TableCell>
                       <TableCell className="text-slate-400">{supplier.phone || '-'}</TableCell>
                       <TableCell className="text-slate-400 max-w-xs truncate">{supplier.address || '-'}</TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(supplier)}
-                          className="text-blue-400 hover:text-blue-300"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(supplier.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
+                      {permissions.canManageSuppliers && (
+                        <TableCell className="text-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(supplier)}
+                            className="text-blue-400 hover:text-blue-300"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(supplier.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -156,12 +186,14 @@ export function SuppliersPage() {
         </Card>
       </div>
 
-      <SupplierDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        supplier={editingSupplier}
-        onSave={handleSave}
-      />
+      {permissions.canManageSuppliers && (
+        <SupplierDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          supplier={editingSupplier}
+          onSave={handleSave}
+        />
+      )}
     </div>
   )
 }
