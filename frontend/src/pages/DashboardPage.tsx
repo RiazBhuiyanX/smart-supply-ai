@@ -1,26 +1,40 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function DashboardPage() {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   const cards = [
-    { title: 'Products', desc: 'Manage your product catalog', path: '/products', color: 'secondary' },
-    { title: 'Warehouses', desc: 'Manage storage locations', path: '/warehouses', color: 'secondary' },
-    { title: 'Inventory', desc: 'Track stock levels', path: '/inventory', color: 'secondary' },
-    { title: 'Suppliers', desc: 'Manage vendor directory', path: '/suppliers', color: 'secondary' },
-    { title: 'Purchase Orders', desc: 'Manage procurement', path: '/purchase-orders', color: 'secondary' },
-    { title: 'Audit Trail', desc: 'View inventory movements', path: '/inventory-movements', color: 'secondary' },
+    { title: 'Products', desc: 'Manage your product catalog', path: '/products' },
+    { title: 'Warehouses', desc: 'Manage storage locations', path: '/warehouses' },
+    { title: 'Inventory', desc: 'Track stock levels', path: '/inventory' },
+    { title: 'Suppliers', desc: 'Manage vendor directory', path: '/suppliers' },
+    { title: 'Purchase Orders', desc: 'Manage procurement', path: '/purchase-orders' },
+    { title: 'Audit Trail', desc: 'View inventory movements', path: '/inventory-movements' },
   ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">SmartSupply AI 📦</h1>
-          <Button variant="default" onClick={() => navigate('/login')}>
-            Login
+          <div>
+            <h1 className="text-4xl font-bold text-white">SmartSupply AI 📦</h1>
+            {user && (
+              <p className="text-slate-400 mt-1">
+                Welcome, {user.firstName} {user.lastName}
+              </p>
+            )}
+          </div>
+          <Button variant="destructive" onClick={handleLogout}>
+            Logout
           </Button>
         </div>
         
