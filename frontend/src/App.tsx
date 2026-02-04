@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
+import { RegisterPage } from '@/pages/RegisterPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import { WarehousesPage } from '@/pages/WarehousesPage'
@@ -12,16 +15,36 @@ import './index.css'
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/warehouses" element={<WarehousesPage />} />
-        <Route path="/inventory" element={<InventoryPage />} />
-        <Route path="/suppliers" element={<SuppliersPage />} />
-        <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
-        <Route path="/inventory-movements" element={<InventoryMovementsPage />} />
-        <Route path="/" element={<DashboardPage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          
+          {/* Protected routes */}
+          <Route path="/" element={
+            <ProtectedRoute><DashboardPage /></ProtectedRoute>
+          } />
+          <Route path="/products" element={
+            <ProtectedRoute><ProductsPage /></ProtectedRoute>
+          } />
+          <Route path="/warehouses" element={
+            <ProtectedRoute><WarehousesPage /></ProtectedRoute>
+          } />
+          <Route path="/inventory" element={
+            <ProtectedRoute><InventoryPage /></ProtectedRoute>
+          } />
+          <Route path="/suppliers" element={
+            <ProtectedRoute><SuppliersPage /></ProtectedRoute>
+          } />
+          <Route path="/purchase-orders" element={
+            <ProtectedRoute><PurchaseOrdersPage /></ProtectedRoute>
+          } />
+          <Route path="/inventory-movements" element={
+            <ProtectedRoute><InventoryMovementsPage /></ProtectedRoute>
+          } />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
