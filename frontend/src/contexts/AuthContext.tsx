@@ -50,9 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const data = await response.json()
     
-    setToken(data.token)
+    // Backend returns 'accessToken' not 'token'
+    setToken(data.accessToken)
     setUser(data.user)
-    localStorage.setItem('token', data.token)
+    localStorage.setItem('token', data.accessToken)
     localStorage.setItem('user', JSON.stringify(data.user))
   }
 
