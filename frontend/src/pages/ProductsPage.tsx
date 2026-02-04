@@ -21,7 +21,7 @@ interface Product {
   description: string
   category: string
   price: number
-  minStockLevel: number
+  safetyStock: number
 }
 
 export function ProductsPage() {
@@ -156,7 +156,7 @@ export function ProductsPage() {
                         ${product.price?.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-slate-400 text-right">
-                        {product.minStockLevel}
+                        {product.safetyStock || '-'}
                       </TableCell>
                       {(permissions.canEditProducts || permissions.canDeleteProducts) && (
                         <TableCell className="text-center">
