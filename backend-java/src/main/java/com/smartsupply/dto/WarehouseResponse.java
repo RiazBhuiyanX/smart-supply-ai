@@ -15,4 +15,5 @@ public class WarehouseResponse {
     private String name;
     private String location;
     private WarehouseType type;
+    private Integer capacity;
 }

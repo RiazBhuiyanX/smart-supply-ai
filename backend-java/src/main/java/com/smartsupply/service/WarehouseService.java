@@ -38,6 +38,7 @@ public class WarehouseService {
                 .name(request.getName())
                 .location(request.getLocation())
                 .type(request.getType() != null ? request.getType() : WarehouseType.PHYSICAL)
+                .capacity(request.getCapacity() != null ? request.getCapacity() : 10000)
                 .build();
 
         warehouse = warehouseRepository.save(warehouse);
@@ -52,6 +53,9 @@ public class WarehouseService {
         warehouse.setLocation(request.getLocation());
         if (request.getType() != null) {
             warehouse.setType(request.getType());
+        }
+        if (request.getCapacity() != null) {
+            warehouse.setCapacity(request.getCapacity());
         }
 
         warehouse = warehouseRepository.save(warehouse);
@@ -71,6 +75,7 @@ public class WarehouseService {
                 .name(warehouse.getName())
                 .location(warehouse.getLocation())
                 .type(warehouse.getType())
+                .capacity(warehouse.getCapacity())
                 .build();
     }
 }

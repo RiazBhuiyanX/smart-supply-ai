@@ -32,6 +32,9 @@ public class Warehouse {
     @Builder.Default
     private WarehouseType type = WarehouseType.PHYSICAL;
 
+    @Builder.Default
+    private Integer capacity = 10000;
+
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
     @Builder.Default
     private List<InventoryItem> inventoryItems = new ArrayList<>();

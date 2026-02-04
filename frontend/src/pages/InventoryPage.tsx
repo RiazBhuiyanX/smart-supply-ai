@@ -10,6 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { StockAdjustmentDialog } from '@/components/StockAdjustmentDialog'
+import { useAuth } from '@/contexts/AuthContext'
+import { getPermissions } from '@/lib/permissions'
 
 interface InventoryItem {
   id: string
@@ -26,9 +29,14 @@ interface InventoryItem {
 
 export function InventoryPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const permissions = getPermissions(user?.role)
+  
   const [inventory, setInventory] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [adjustDialogOpen, setAdjustDialogOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
 
   useEffect(() => {
     fetchInventory()
@@ -47,6 +55,21 @@ export function InventoryPage() {
     }
   }
 
+  const handleAdjustClick = (item: InventoryItem) => {
+    if (!permissions.canAdjustStock) {
+      alert('You do not have permission to adjust stock.')
+      return
+    }
+    setSelectedItem(item)
+    setAdjustDialogOpen(true)
+  }
+
+  const handleAdjustComplete = (updatedItem: InventoryItem) => {
+    setInventory(inventory.map(item => 
+      item.id === updatedItem.id ? updatedItem : item
+    ))
+  }
+
   const getStockStatus = (item: InventoryItem) => {
     if (item.available <= 0) return { label: 'Out of Stock', color: 'bg-red-500/20 text-red-400' }
     if (item.quantity <= 10) return { label: 'Low Stock', color: 'bg-yellow-500/20 text-yellow-400' }
@@ -57,7 +80,15 @@ export function InventoryPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Inventory 📊</h1>
+          <div>
+            <h1 className="text-4xl font-bold text-white">Inventory 📊</h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Role: <span className="text-blue-400">{user?.role || 'Unknown'}</span>
+              {permissions.canAdjustStock && (
+                <span className="text-green-400 ml-2">• Can adjust stock</span>
+              )}
+            </p>
+          </div>
           <div className="flex gap-4">
             <Button variant="secondary" onClick={() => navigate('/warehouses')}>
               View Warehouses
@@ -90,6 +121,9 @@ export function InventoryPage() {
                     <TableHead className="text-slate-300 text-right">Reserved</TableHead>
                     <TableHead className="text-slate-300 text-right">Available</TableHead>
                     <TableHead className="text-slate-300">Status</TableHead>
+                    {permissions.canAdjustStock && (
+                      <TableHead className="text-slate-300 text-center">Actions</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -108,6 +142,18 @@ export function InventoryPage() {
                             {status.label}
                           </span>
                         </TableCell>
+                        {permissions.canAdjustStock && (
+                          <TableCell className="text-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAdjustClick(item)}
+                              className="text-blue-400 hover:text-blue-300"
+                            >
+                              Adjust
+                            </Button>
+                          </TableCell>
+                        )}
                       </TableRow>
                     )
                   })}
@@ -117,6 +163,13 @@ export function InventoryPage() {
           </CardContent>
         </Card>
       </div>
+
+      <StockAdjustmentDialog
+        open={adjustDialogOpen}
+        onOpenChange={setAdjustDialogOpen}
+        inventoryItem={selectedItem}
+        onAdjust={handleAdjustComplete}
+      />
     </div>
   )
 }
