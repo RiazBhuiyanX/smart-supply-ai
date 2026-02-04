@@ -26,4 +26,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     
     @Query("SELECT i FROM InventoryItem i WHERE i.quantity - i.reserved <= 0")
     List<InventoryItem> findOutOfStockItems();
+    
+    void deleteByProductId(String productId);
 }

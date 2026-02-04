@@ -5,6 +5,7 @@ import com.smartsupply.entity.MovementType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -30,4 +31,10 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
     List<InventoryMovement> findByWarehouseId(String warehouseId);
     
     List<InventoryMovement> findByReferenceTypeAndReferenceId(String referenceType, String referenceId);
+    
+    void deleteByInventoryItemId(String inventoryItemId);
+    
+    @Query("DELETE FROM InventoryMovement m WHERE m.inventoryItem.product.id = :productId")
+    @Modifying
+    void deleteByProductId(String productId);
 }
