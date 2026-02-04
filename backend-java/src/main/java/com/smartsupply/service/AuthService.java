@@ -32,11 +32,12 @@ public class AuthService {
     /**
      * Register a new user.
      * 
-     * Steps (same as NestJS):
+     * Steps:
      * 1. Check if email exists
-     * 2. Hash password
-     * 3. Save user
-     * 4. Return user without password
+     * 2. Validate invite code and determine role
+     * 3. Hash password
+     * 4. Save user
+     * 5. Return auth response with JWT
      */
     public AuthResponse register(RegisterRequest request) {
         // Check if user already exists
@@ -44,13 +45,16 @@ public class AuthService {
             throw new RuntimeException("User with this email already exists");
         }
 
+        // Determine role from invite code (secure role assignment)
+        var role = getRoleFromInviteCode(request.getInviteCode());
+
         // Build user entity with hashed password
         User user = User.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .role(request.getRole())
+                .role(role)
                 .build();
 
         // Save to database
@@ -60,6 +64,23 @@ public class AuthService {
         String jwtToken = jwtService.generateToken(user);
 
         return buildAuthResponse(user, jwtToken);
+    }
+
+    /**
+     * Map invite code to role.
+     * Without valid code, defaults to WAREHOUSE_OP.
+     */
+    private com.smartsupply.entity.Role getRoleFromInviteCode(String inviteCode) {
+        if (inviteCode == null || inviteCode.isBlank()) {
+            return com.smartsupply.entity.Role.WAREHOUSE_OP;
+        }
+        
+        return switch (inviteCode.toUpperCase().trim()) {
+            case "ADMIN-2024-SECRET" -> com.smartsupply.entity.Role.ADMIN;
+            case "MGR-SMART-SUPPLY" -> com.smartsupply.entity.Role.MANAGER;
+            case "PROC-SMART-SUPPLY" -> com.smartsupply.entity.Role.PROCUREMENT;
+            default -> com.smartsupply.entity.Role.WAREHOUSE_OP;
+        };
     }
 
     /**
