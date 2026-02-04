@@ -19,4 +19,6 @@ public class CreateWarehouseRequest {
     private String location;
     
     private WarehouseType type;
+    
+    private Integer capacity;
 }

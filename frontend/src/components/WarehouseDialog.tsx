@@ -15,6 +15,7 @@ interface Warehouse {
   name: string
   location: string
   type: 'PHYSICAL' | 'VIRTUAL'
+  capacity: number
 }
 
 interface WarehouseDialogProps {
@@ -30,6 +31,7 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
     name: '',
     location: '',
     type: 'PHYSICAL' as 'PHYSICAL' | 'VIRTUAL',
+    capacity: 10000,
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -40,9 +42,10 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
         name: warehouse.name,
         location: warehouse.location || '',
         type: warehouse.type || 'PHYSICAL',
+        capacity: warehouse.capacity || 10000,
       })
     } else {
-      setFormData({ name: '', location: '', type: 'PHYSICAL' })
+      setFormData({ name: '', location: '', type: 'PHYSICAL', capacity: 10000 })
     }
     setError('')
   }, [warehouse, open])
@@ -128,6 +131,19 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
               <option value="PHYSICAL">Physical</option>
               <option value="VIRTUAL">Virtual</option>
             </select>
+          </div>
+
+          <div>
+            <label className="text-sm text-slate-400 mb-1 block">Capacity (units)</label>
+            <Input
+              name="capacity"
+              type="number"
+              placeholder="10000"
+              value={formData.capacity}
+              onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })}
+              className="bg-slate-700 border-slate-600 text-white"
+              min={1}
+            />
           </div>
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
