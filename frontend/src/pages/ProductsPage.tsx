@@ -11,6 +11,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ProductDialog } from '@/components/ProductDialog'
+import { useAuth } from '@/contexts/AuthContext'
+import { getPermissions } from '@/lib/permissions'
 
 interface Product {
   id: string
@@ -24,6 +26,9 @@ interface Product {
 
 export function ProductsPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const permissions = getPermissions(user?.role)
+  
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -48,11 +53,19 @@ export function ProductsPage() {
   }
 
   const handleAddNew = () => {
+    if (!permissions.canCreateProducts) {
+      alert('You do not have permission to create products.')
+      return
+    }
     setEditingProduct(null)
     setDialogOpen(true)
   }
 
   const handleEdit = (product: Product) => {
+    if (!permissions.canEditProducts) {
+      alert('You do not have permission to edit products.')
+      return
+    }
     setEditingProduct(product)
     setDialogOpen(true)
   }
@@ -68,6 +81,10 @@ export function ProductsPage() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!permissions.canDeleteProducts) {
+      alert('You do not have permission to delete products.')
+      return
+    }
     if (!confirm('Are you sure you want to delete this product?')) return
     
     try {
@@ -83,9 +100,16 @@ export function ProductsPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Products 📦</h1>
+          <div>
+            <h1 className="text-4xl font-bold text-white">Products 📦</h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Role: <span className="text-blue-400">{user?.role || 'Unknown'}</span>
+            </p>
+          </div>
           <div className="flex gap-4">
-            <Button onClick={handleAddNew}>+ Add Product</Button>
+            {permissions.canCreateProducts && (
+              <Button onClick={handleAddNew}>+ Add Product</Button>
+            )}
             <Button variant="outline" onClick={() => navigate('/')}>
               ← Dashboard
             </Button>
@@ -104,7 +128,9 @@ export function ProductsPage() {
             ) : products.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-slate-400 mb-4">No products found.</p>
-                <Button onClick={handleAddNew}>Create your first product</Button>
+                {permissions.canCreateProducts && (
+                  <Button onClick={handleAddNew}>Create your first product</Button>
+                )}
               </div>
             ) : (
               <Table>
@@ -115,7 +141,9 @@ export function ProductsPage() {
                     <TableHead className="text-slate-300">Category</TableHead>
                     <TableHead className="text-slate-300 text-right">Price</TableHead>
                     <TableHead className="text-slate-300 text-right">Min Stock</TableHead>
-                    <TableHead className="text-slate-300 text-center">Actions</TableHead>
+                    {(permissions.canEditProducts || permissions.canDeleteProducts) && (
+                      <TableHead className="text-slate-300 text-center">Actions</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -130,24 +158,30 @@ export function ProductsPage() {
                       <TableCell className="text-slate-400 text-right">
                         {product.minStockLevel}
                       </TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(product)}
-                          className="text-blue-400 hover:text-blue-300"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(product.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
+                      {(permissions.canEditProducts || permissions.canDeleteProducts) && (
+                        <TableCell className="text-center">
+                          {permissions.canEditProducts && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(product)}
+                              className="text-blue-400 hover:text-blue-300"
+                            >
+                              Edit
+                            </Button>
+                          )}
+                          {permissions.canDeleteProducts && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(product.id)}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -157,12 +191,14 @@ export function ProductsPage() {
         </Card>
       </div>
 
-      <ProductDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        product={editingProduct}
-        onSave={handleSave}
-      />
+      {permissions.canCreateProducts && (
+        <ProductDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          product={editingProduct}
+          onSave={handleSave}
+        />
+      )}
     </div>
   )
 }

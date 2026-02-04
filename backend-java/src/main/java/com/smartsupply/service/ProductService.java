@@ -3,7 +3,10 @@ package com.smartsupply.service;
 import com.smartsupply.dto.CreateProductRequest;
 import com.smartsupply.dto.ProductResponse;
 import com.smartsupply.entity.Product;
+import com.smartsupply.repository.InventoryItemRepository;
+import com.smartsupply.repository.InventoryMovementRepository;
 import com.smartsupply.repository.ProductRepository;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+    private final InventoryMovementRepository inventoryMovementRepository;
 
     /**
      * Get all products with pagination.
@@ -91,12 +96,16 @@ public class ProductService {
     }
 
     /**
-     * Delete product.
+     * Delete product and associated inventory items + movements.
      */
+    @Transactional
     public void deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
             throw new RuntimeException("Product not found");
         }
+        // Delete in order: movements -> items -> product
+        inventoryMovementRepository.deleteByProductId(id);
+        inventoryItemRepository.deleteByProductId(id);
         productRepository.deleteById(id);
     }
 
