@@ -14,7 +14,7 @@ interface Warehouse {
   id: string
   name: string
   location: string
-  capacity: number
+  type: 'PHYSICAL' | 'VIRTUAL'
 }
 
 interface WarehouseDialogProps {
@@ -29,7 +29,7 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    capacity: 1000,
+    type: 'PHYSICAL' as 'PHYSICAL' | 'VIRTUAL',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -39,20 +39,17 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
       setFormData({
         name: warehouse.name,
         location: warehouse.location || '',
-        capacity: warehouse.capacity || 1000,
+        type: warehouse.type || 'PHYSICAL',
       })
     } else {
-      setFormData({ name: '', location: '', capacity: 1000 })
+      setFormData({ name: '', location: '', type: 'PHYSICAL' })
     }
     setError('')
   }, [warehouse, open])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target
-    setFormData({
-      ...formData,
-      [name]: type === 'number' ? parseInt(value) || 0 : value,
-    })
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,16 +118,16 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
           </div>
 
           <div>
-            <label className="text-sm text-slate-400 mb-1 block">Capacity (units)</label>
-            <Input
-              name="capacity"
-              type="number"
-              placeholder="1000"
-              value={formData.capacity}
+            <label className="text-sm text-slate-400 mb-1 block">Type</label>
+            <select
+              name="type"
+              value={formData.type}
               onChange={handleChange}
-              className="bg-slate-700 border-slate-600 text-white"
-              min={1}
-            />
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white"
+            >
+              <option value="PHYSICAL">Physical</option>
+              <option value="VIRTUAL">Virtual</option>
+            </select>
           </div>
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -138,9 +135,10 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="text-white"
             >
               Cancel
             </Button>
@@ -153,3 +151,4 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
     </Dialog>
   )
 }
+
