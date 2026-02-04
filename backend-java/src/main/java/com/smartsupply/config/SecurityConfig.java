@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/warehouses/**").permitAll()  // TODO: protect in production
                         .requestMatchers("/inventory/**").permitAll()  // TODO: protect in production
                         .requestMatchers("/suppliers/**").permitAll()  // TODO: protect in production
+                        .requestMatchers("/purchase-orders/**").permitAll()  // TODO: protect in production
                         
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
