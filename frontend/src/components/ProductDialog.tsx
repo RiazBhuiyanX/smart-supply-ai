@@ -16,7 +16,7 @@ interface Product {
   sku: string
   description: string
   price: number
-  minStockLevel: number
+  safetyStock: number
   category: string
 }
 
@@ -34,7 +34,7 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
     sku: '',
     description: '',
     price: 0,
-    minStockLevel: 10,
+    safetyStock: 10,
     category: '',
   })
   const [loading, setLoading] = useState(false)
@@ -49,7 +49,7 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
         sku: '',
         description: '',
         price: 0,
-        minStockLevel: 10,
+        safetyStock: 10,
         category: '',
       })
     }
@@ -153,9 +153,9 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
             <div>
               <label className="text-sm text-slate-400">Min Stock</label>
               <Input
-                name="minStockLevel"
+                name="safetyStock"
                 type="number"
-                value={formData.minStockLevel}
+                value={formData.safetyStock}
                 onChange={handleChange}
                 className="bg-slate-700 border-slate-600 text-white"
               />
