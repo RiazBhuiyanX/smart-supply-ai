@@ -46,6 +46,13 @@ export function RegisterPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
+        // Parse detailed validation errors from backend
+        if (data.errors && typeof data.errors === 'object') {
+          const errorMessages = Object.entries(data.errors)
+            .map(([field, msg]) => `${field}: ${msg}`)
+            .join('\n')
+          throw new Error(errorMessages || data.message || 'Registration failed')
+        }
         throw new Error(data.message || 'Registration failed')
       }
 
@@ -123,7 +130,7 @@ export function RegisterPage() {
               />
               
               {error && (
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-red-400 text-sm whitespace-pre-line">{error}</p>
               )}
 
               <Button 
