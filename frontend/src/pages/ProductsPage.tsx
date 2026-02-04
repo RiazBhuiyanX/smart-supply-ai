@@ -10,14 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { ProductDialog } from '@/components/ProductDialog'
 
 interface Product {
   id: string
   sku: string
   name: string
+  description: string
   category: string
   price: number
-  safetyStock: number
+  minStockLevel: number
 }
 
 export function ProductsPage() {
@@ -25,6 +27,8 @@ export function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
   useEffect(() => {
     fetchProducts()
@@ -43,14 +47,49 @@ export function ProductsPage() {
     }
   }
 
+  const handleAddNew = () => {
+    setEditingProduct(null)
+    setDialogOpen(true)
+  }
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product)
+    setDialogOpen(true)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSave = (data: any) => {
+    const saved = data as Product
+    if (editingProduct) {
+      setProducts(products.map(p => p.id === saved.id ? saved : p))
+    } else {
+      setProducts([saved, ...products])
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return
+    
+    try {
+      const res = await fetch(`http://localhost:8080/products/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete')
+      setProducts(products.filter(p => p.id !== id))
+    } catch (err) {
+      alert('Failed to delete product')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-white">Products 📦</h1>
-          <Button variant="outline" onClick={() => navigate('/')}>
-            ← Back to Dashboard
-          </Button>
+          <div className="flex gap-4">
+            <Button onClick={handleAddNew}>+ Add Product</Button>
+            <Button variant="outline" onClick={() => navigate('/')}>
+              ← Dashboard
+            </Button>
+          </div>
         </div>
 
         <Card className="bg-slate-800/50 border-slate-700">
@@ -63,7 +102,10 @@ export function ProductsPage() {
             ) : error ? (
               <p className="text-red-400">{error}</p>
             ) : products.length === 0 ? (
-              <p className="text-slate-400">No products found. Add some via the API!</p>
+              <div className="text-center py-8">
+                <p className="text-slate-400 mb-4">No products found.</p>
+                <Button onClick={handleAddNew}>Create your first product</Button>
+              </div>
             ) : (
               <Table>
                 <TableHeader>
@@ -72,7 +114,8 @@ export function ProductsPage() {
                     <TableHead className="text-slate-300">Name</TableHead>
                     <TableHead className="text-slate-300">Category</TableHead>
                     <TableHead className="text-slate-300 text-right">Price</TableHead>
-                    <TableHead className="text-slate-300 text-right">Safety Stock</TableHead>
+                    <TableHead className="text-slate-300 text-right">Min Stock</TableHead>
+                    <TableHead className="text-slate-300 text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -80,12 +123,30 @@ export function ProductsPage() {
                     <TableRow key={product.id} className="border-slate-700">
                       <TableCell className="text-white font-mono">{product.sku}</TableCell>
                       <TableCell className="text-white">{product.name}</TableCell>
-                      <TableCell className="text-slate-400">{product.category}</TableCell>
+                      <TableCell className="text-slate-400">{product.category || '-'}</TableCell>
                       <TableCell className="text-green-400 text-right">
                         ${product.price?.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-slate-400 text-right">
-                        {product.safetyStock}
+                        {product.minStockLevel}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(product)}
+                          className="text-blue-400 hover:text-blue-300"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(product.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          Delete
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -95,6 +156,13 @@ export function ProductsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <ProductDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        product={editingProduct}
+        onSave={handleSave}
+      />
     </div>
   )
 }
