@@ -12,6 +12,7 @@ export function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    inviteCode: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -41,12 +42,12 @@ export function RegisterPage() {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
+          inviteCode: formData.inviteCode || null,
         }),
       })
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        // Parse detailed validation errors from backend
         if (data.errors && typeof data.errors === 'object') {
           const errorMessages = Object.entries(data.errors)
             .map(([field, msg]) => `${field}: ${msg}`)
@@ -112,7 +113,7 @@ export function RegisterPage() {
               <Input
                 name="password"
                 type="password"
-                placeholder="Password"
+                placeholder="Password (min 6 characters)"
                 value={formData.password}
                 onChange={handleChange}
                 className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
@@ -128,6 +129,19 @@ export function RegisterPage() {
                 className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
                 required
               />
+              
+              <div>
+                <Input
+                  name="inviteCode"
+                  placeholder="Invite Code (optional)"
+                  value={formData.inviteCode}
+                  onChange={handleChange}
+                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  Have an invite code? Enter it to get elevated access.
+                </p>
+              </div>
               
               {error && (
                 <p className="text-red-400 text-sm whitespace-pre-line">{error}</p>

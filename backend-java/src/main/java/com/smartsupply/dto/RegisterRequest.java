@@ -1,6 +1,5 @@
 package com.smartsupply.dto;
 
-import com.smartsupply.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -34,6 +33,8 @@ public class RegisterRequest {
     @NotBlank(message = "Last name is required")
     private String lastName;
     
-    // Role is optional, defaults to WAREHOUSE_OP if not provided
-    private Role role = Role.WAREHOUSE_OP;
+    // Invite code for role assignment (optional)
+    // Valid codes: ADMIN-2024-SECRET, MGR-SMART-SUPPLY, PROC-SMART-SUPPLY
+    // No code or invalid code = WAREHOUSE_OP
+    private String inviteCode;
 }
