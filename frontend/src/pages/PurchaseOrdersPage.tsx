@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ReceiveItemsDialog } from '@/components/ReceiveItemsDialog'
+import { PurchaseOrderDialog } from '@/components/PurchaseOrderDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
 
@@ -29,7 +30,7 @@ interface PurchaseOrder {
   orderNumber: string
   supplierId: string
   supplierName: string
-  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'ORDERED' | 'PARTIALLY_RECEIVED' | 'RECEIVED' | 'CANCELLED'
+  status: 'DRAFT' | 'SENT' | 'RECEIVED' | 'CANCELLED'
   totalAmount: number
   expectedDate: string
   createdAt: string
@@ -45,6 +46,7 @@ export function PurchaseOrdersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null)
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function PurchaseOrdersPage() {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       const res = await fetch(`http://localhost:8080/purchase-orders/${orderId}/status?status=${newStatus}`, {
-        method: 'PATCH'
+        method: 'POST'
       })
       if (!res.ok) throw new Error('Failed to update status')
       fetchOrders()
@@ -104,10 +106,7 @@ export function PurchaseOrdersPage() {
   const getStatusBadge = (status: PurchaseOrder['status']) => {
     const styles: Record<string, string> = {
       DRAFT: 'bg-slate-500/20 text-slate-400',
-      SUBMITTED: 'bg-yellow-500/20 text-yellow-400',
-      APPROVED: 'bg-purple-500/20 text-purple-400',
-      ORDERED: 'bg-blue-500/20 text-blue-400',
-      PARTIALLY_RECEIVED: 'bg-orange-500/20 text-orange-400',
+      SENT: 'bg-blue-500/20 text-blue-400',
       RECEIVED: 'bg-green-500/20 text-green-400',
       CANCELLED: 'bg-red-500/20 text-red-400',
     }
@@ -127,8 +126,8 @@ export function PurchaseOrdersPage() {
           <div className="flex gap-1">
             {canManage && (
               <>
-                <Button size="sm" variant="outline" onClick={() => handleStatusChange(order.id, 'SUBMITTED')}>
-                  Submit
+                <Button size="sm" onClick={() => handleStatusChange(order.id, 'SENT')}>
+                  Send
                 </Button>
                 <Button size="sm" variant="ghost" className="text-red-400" onClick={() => handleDelete(order.id)}>
                   Delete
@@ -137,24 +136,18 @@ export function PurchaseOrdersPage() {
             )}
           </div>
         )
-      case 'SUBMITTED':
-        return canManage ? (
-          <Button size="sm" onClick={() => handleStatusChange(order.id, 'APPROVED')}>
-            Approve
-          </Button>
-        ) : null
-      case 'APPROVED':
-        return canManage ? (
-          <Button size="sm" onClick={() => handleStatusChange(order.id, 'ORDERED')}>
-            Mark Ordered
-          </Button>
-        ) : null
-      case 'ORDERED':
-      case 'PARTIALLY_RECEIVED':
+      case 'SENT':
         return (
-          <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleReceive(order)}>
-            📦 Receive
-          </Button>
+          <div className="flex gap-1">
+            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleReceive(order)}>
+              📦 Receive
+            </Button>
+            {canManage && (
+              <Button size="sm" variant="ghost" className="text-red-400" onClick={() => handleStatusChange(order.id, 'CANCELLED')}>
+                Cancel
+              </Button>
+            )}
+          </div>
         )
       case 'RECEIVED':
         return <span className="text-green-400 text-xs">✓ Complete</span>
@@ -171,6 +164,11 @@ export function PurchaseOrdersPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-white">Purchase Orders 📋</h1>
           <div className="flex gap-4">
+            {permissions.canManageOrders && (
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                + Create Order
+              </Button>
+            )}
             <Button variant="secondary" onClick={() => navigate('/suppliers')}>
               View Suppliers
             </Button>
@@ -181,15 +179,15 @@ export function PurchaseOrdersPage() {
         </div>
 
         {/* Status Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-          {['DRAFT', 'SUBMITTED', 'APPROVED', 'ORDERED', 'PARTIALLY_RECEIVED', 'RECEIVED', 'CANCELLED'].map(status => {
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {['DRAFT', 'SENT', 'RECEIVED', 'CANCELLED'].map(status => {
             const count = orders.filter(o => o.status === status).length
             return (
               <Card key={status} className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4 text-center">
                   <p className="text-2xl font-bold text-white">{count}</p>
                   <p className={`text-xs ${getStatusBadge(status as PurchaseOrder['status']).split(' ')[1]}`}>
-                    {status.replace('_', ' ')}
+                    {status}
                   </p>
                 </CardContent>
               </Card>
@@ -257,6 +255,12 @@ export function PurchaseOrdersPage() {
         onOpenChange={setReceiveDialogOpen}
         purchaseOrder={selectedOrder}
         onReceive={handleReceived}
+      />
+
+      <PurchaseOrderDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSave={() => fetchOrders()}
       />
     </div>
   )

@@ -138,9 +138,9 @@ public class PurchaseOrderService {
         PurchaseOrder order = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase order not found"));
 
-        // Only allow receiving from ORDERED or PARTIALLY_RECEIVED orders
-        if (order.getStatus() != OrderStatus.ORDERED && order.getStatus() != OrderStatus.PARTIALLY_RECEIVED) {
-            throw new RuntimeException("Can only receive items from ORDERED or PARTIALLY_RECEIVED orders. Current status: " + order.getStatus());
+        // Only allow receiving from SENT orders
+        if (order.getStatus() != OrderStatus.SENT) {
+            throw new RuntimeException("Can only receive items from SENT orders. Current status: " + order.getStatus());
         }
 
         // Get warehouse
@@ -197,15 +197,13 @@ public class PurchaseOrderService {
             inventoryMovementRepository.save(movement);
         }
 
-        // Update order status based on received quantities
+        // Update order status when all items received
         boolean allReceived = order.getItems().stream().allMatch(PurchaseOrderItem::isFullyReceived);
-        boolean anyReceived = order.getItems().stream().anyMatch(item -> item.getQuantityReceived() > 0);
 
         if (allReceived) {
             order.setStatus(OrderStatus.RECEIVED);
-        } else if (anyReceived) {
-            order.setStatus(OrderStatus.PARTIALLY_RECEIVED);
         }
+        // If not all received, keep status as SENT
 
         order = purchaseOrderRepository.save(order);
         return toResponse(order);
