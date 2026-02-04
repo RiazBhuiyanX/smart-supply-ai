@@ -2,6 +2,7 @@ package com.smartsupply.controller;
 
 import com.smartsupply.dto.CreatePurchaseOrderRequest;
 import com.smartsupply.dto.PurchaseOrderResponse;
+import com.smartsupply.dto.ReceiveItemsRequest;
 import com.smartsupply.entity.OrderStatus;
 import com.smartsupply.service.PurchaseOrderService;
 import jakarta.validation.Valid;
@@ -54,6 +55,20 @@ public class PurchaseOrderController {
                 .body(purchaseOrderService.createPurchaseOrder(request, userId));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<PurchaseOrderResponse> updatePurchaseOrder(
+            @PathVariable String id,
+            @Valid @RequestBody CreatePurchaseOrderRequest request) {
+        return ResponseEntity.ok(purchaseOrderService.updatePurchaseOrder(id, request));
+    }
+
+    @PostMapping("/{id}/receive")
+    public ResponseEntity<PurchaseOrderResponse> receiveItems(
+            @PathVariable String id,
+            @Valid @RequestBody ReceiveItemsRequest request) {
+        return ResponseEntity.ok(purchaseOrderService.receiveItems(id, request));
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<PurchaseOrderResponse> updateStatus(
             @PathVariable String id,
@@ -67,3 +82,4 @@ public class PurchaseOrderController {
         return ResponseEntity.noContent().build();
     }
 }
+
