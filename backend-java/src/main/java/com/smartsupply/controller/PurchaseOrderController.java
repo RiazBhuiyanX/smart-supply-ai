@@ -69,7 +69,7 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.receiveItems(id, request));
     }
 
-    @PatchMapping("/{id}/status")
+    @PostMapping("/{id}/status")
     public ResponseEntity<PurchaseOrderResponse> updateStatus(
             @PathVariable String id,
             @RequestParam OrderStatus status) {
