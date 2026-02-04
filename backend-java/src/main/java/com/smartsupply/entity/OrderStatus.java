@@ -6,6 +6,6 @@ package com.smartsupply.entity;
 public enum OrderStatus {
     DRAFT,      // Order created but not sent
     SENT,       // Order sent to supplier
-    RECEIVED,   // Order received in warehouse
+    RECEIVED,   // All items received
     CANCELLED   // Order cancelled
 }
