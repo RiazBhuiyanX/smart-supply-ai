@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
+import type { Role } from '@/lib/permissions'
+
 interface User {
   id: string
   email: string
   firstName: string
   lastName: string
+  role: Role
 }
 
 interface AuthContextType {
