@@ -3,9 +3,12 @@ package com.smartsupply.service;
 import com.smartsupply.dto.CreateInventoryItemRequest;
 import com.smartsupply.dto.InventoryItemResponse;
 import com.smartsupply.entity.InventoryItem;
+import com.smartsupply.entity.InventoryMovement;
+import com.smartsupply.entity.MovementType;
 import com.smartsupply.entity.Product;
 import com.smartsupply.entity.Warehouse;
 import com.smartsupply.repository.InventoryItemRepository;
+import com.smartsupply.repository.InventoryMovementRepository;
 import com.smartsupply.repository.ProductRepository;
 import com.smartsupply.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class InventoryItemService {
 
     private final InventoryItemRepository inventoryItemRepository;
+    private final InventoryMovementRepository inventoryMovementRepository;
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
 
@@ -70,16 +74,30 @@ public class InventoryItemService {
         return toResponse(item);
     }
 
-    public InventoryItemResponse adjustQuantity(String id, int adjustment) {
+    public InventoryItemResponse adjustQuantity(String id, int newQuantity, String reason) {
         InventoryItem item = inventoryItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inventory item not found"));
 
-        int newQuantity = item.getQuantity() + adjustment;
         if (newQuantity < 0) {
             throw new RuntimeException("Cannot have negative quantity");
         }
+        
+        int oldQuantity = item.getQuantity();
+        int adjustment = newQuantity - oldQuantity;
+        
+        // Create audit trail entry
+        InventoryMovement movement = InventoryMovement.builder()
+                .inventoryItem(item)
+                .movementType(adjustment >= 0 ? MovementType.IN : MovementType.OUT)
+                .quantity(Math.abs(adjustment))
+                .quantityBefore(oldQuantity)
+                .quantityAfter(newQuantity)
+                .reason(reason)
+                .referenceType("MANUAL_ADJUSTMENT")
+                .build();
+        inventoryMovementRepository.save(movement);
+        
         item.setQuantity(newQuantity);
-
         item = inventoryItemRepository.save(item);
         return toResponse(item);
     }

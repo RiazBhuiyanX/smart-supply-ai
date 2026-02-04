@@ -58,11 +58,13 @@ public class InventoryItemController {
                 .body(inventoryItemService.createOrUpdateInventory(request));
     }
 
-    @PatchMapping("/{id}/adjust")
+    @PostMapping("/{id}/adjust")
     public ResponseEntity<InventoryItemResponse> adjustQuantity(
             @PathVariable String id,
-            @RequestParam int adjustment) {
-        return ResponseEntity.ok(inventoryItemService.adjustQuantity(id, adjustment));
+            @RequestBody java.util.Map<String, Object> body) {
+        int newQuantity = (Integer) body.get("newQuantity");
+        String reason = (String) body.getOrDefault("reason", "Manual adjustment");
+        return ResponseEntity.ok(inventoryItemService.adjustQuantity(id, newQuantity, reason));
     }
 
     @DeleteMapping("/{id}")
