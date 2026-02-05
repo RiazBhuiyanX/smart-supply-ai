@@ -24,9 +24,16 @@ public class InventoryItemController {
     @GetMapping
     public ResponseEntity<Page<InventoryItemResponse>> getAllInventory(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(inventoryItemService.getAllInventoryItems(pageable));
+        Page<InventoryItemResponse> items;
+        if (search != null && !search.isBlank()) {
+            items = inventoryItemService.searchInventoryItems(search, pageable);
+        } else {
+            items = inventoryItemService.getAllInventoryItems(pageable);
+        }
+        return ResponseEntity.ok(items);
     }
 
     @GetMapping("/{id}")

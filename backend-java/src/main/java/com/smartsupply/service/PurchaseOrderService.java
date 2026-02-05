@@ -34,6 +34,11 @@ public class PurchaseOrderService {
                 .map(this::toResponse);
     }
 
+    public Page<PurchaseOrderResponse> searchPurchaseOrders(String search, Pageable pageable) {
+        return purchaseOrderRepository.searchByOrderNumberOrSupplier(search, pageable)
+                .map(this::toResponse);
+    }
+
     public PurchaseOrderResponse getPurchaseOrderById(String id) {
         PurchaseOrder order = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase order not found"));

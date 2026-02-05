@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -10,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { PaginationControls } from '@/components/ui/pagination-controls'
 import { ProductDialog } from '@/components/ProductDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
@@ -34,17 +36,47 @@ export function ProductsPage() {
   const [error, setError] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  
+  // Search & Pagination State
+  const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    const timer = setTimeout(() => {
+      // Reset to page 0 when search changes
+      if (page !== 0 && searchQuery) {
+        setPage(0)
+      } else {
+        fetchProducts()
+      }
+    }, 300) // Debounce 300ms
+    return () => clearTimeout(timer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, page, pageSize])
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:8080/products')
+      setLoading(true)
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        size: pageSize.toString(),
+      })
+      
+      if (searchQuery) {
+        queryParams.append('search', searchQuery)
+      }
+
+      const url = `http://localhost:8080/products?${queryParams.toString()}`
+      const res = await fetch(url)
       if (!res.ok) throw new Error('Failed to fetch products')
       const data = await res.json()
+      
       setProducts(data.content || [])
+      setTotalPages(data.totalPages || 0)
+      setTotalElements(data.totalElements || 0)
     } catch (err) {
       setError('Failed to load products. Make sure the backend is running.')
     } finally {
@@ -77,6 +109,11 @@ export function ProductsPage() {
       setProducts(products.map(p => p.id === saved.id ? saved : p))
     } else {
       setProducts([saved, ...products])
+      // Ideally re-fetch or handle pagination update
+      if (products.length >= pageSize) {
+        // If page is full, maybe fetch again or just let it be hidden until refresh
+        fetchProducts() 
+      }
     }
   }
 
@@ -91,6 +128,12 @@ export function ProductsPage() {
       const res = await fetch(`http://localhost:8080/products/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Failed to delete')
       setProducts(products.filter(p => p.id !== id))
+      // Refetch if page becomes empty?
+      if (products.length === 1 && page > 0) {
+        setPage(page - 1)
+      } else {
+        fetchProducts() // Refresh to fill up the page
+      }
     } catch (err) {
       alert('Failed to delete product')
     }
@@ -117,8 +160,17 @@ export function ProductsPage() {
         </div>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-white">Product Catalog</CardTitle>
+            <Input
+              placeholder="Search products by name or SKU..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setPage(0)
+              }}
+              className="max-w-xs bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+            />
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -133,59 +185,73 @@ export function ProductsPage() {
                 )}
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-slate-700">
-                    <TableHead className="text-slate-300">SKU</TableHead>
-                    <TableHead className="text-slate-300">Name</TableHead>
-                    <TableHead className="text-slate-300">Category</TableHead>
-                    <TableHead className="text-slate-300 text-right">Price</TableHead>
-                    <TableHead className="text-slate-300 text-right">Min Stock</TableHead>
-                    {(permissions.canEditProducts || permissions.canDeleteProducts) && (
-                      <TableHead className="text-slate-300 text-center">Actions</TableHead>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id} className="border-slate-700">
-                      <TableCell className="text-white font-mono">{product.sku}</TableCell>
-                      <TableCell className="text-white">{product.name}</TableCell>
-                      <TableCell className="text-slate-400">{product.category || '-'}</TableCell>
-                      <TableCell className="text-green-400 text-right">
-                        ${product.price?.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-slate-400 text-right">
-                        {product.safetyStock || '-'}
-                      </TableCell>
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-slate-700">
+                      <TableHead className="text-slate-300">SKU</TableHead>
+                      <TableHead className="text-slate-300">Name</TableHead>
+                      <TableHead className="text-slate-300">Category</TableHead>
+                      <TableHead className="text-slate-300 text-right">Price</TableHead>
+                      <TableHead className="text-slate-300 text-right">Min Stock</TableHead>
                       {(permissions.canEditProducts || permissions.canDeleteProducts) && (
-                        <TableCell className="text-center">
-                          {permissions.canEditProducts && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(product)}
-                              className="text-blue-400 hover:text-blue-300"
-                            >
-                              Edit
-                            </Button>
-                          )}
-                          {permissions.canDeleteProducts && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(product.id)}
-                              className="text-red-400 hover:text-red-300"
-                            >
-                              Delete
-                            </Button>
-                          )}
-                        </TableCell>
+                        <TableHead className="text-slate-300 text-center">Actions</TableHead>
                       )}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {products.map((product) => (
+                      <TableRow key={product.id} className="border-slate-700">
+                        <TableCell className="text-white font-mono">{product.sku}</TableCell>
+                        <TableCell className="text-white">{product.name}</TableCell>
+                        <TableCell className="text-slate-400">{product.category || '-'}</TableCell>
+                        <TableCell className="text-green-400 text-right">
+                          ${product.price?.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-slate-400 text-right">
+                          {product.safetyStock || '-'}
+                        </TableCell>
+                        {(permissions.canEditProducts || permissions.canDeleteProducts) && (
+                          <TableCell className="text-center">
+                            {permissions.canEditProducts && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(product)}
+                                className="text-blue-400 hover:text-blue-300"
+                              >
+                                Edit
+                              </Button>
+                            )}
+                            {permissions.canDeleteProducts && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(product.id)}
+                                className="text-red-400 hover:text-red-300"
+                              >
+                                Delete
+                              </Button>
+                            )}
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                
+                <PaginationControls
+                  currentPage={page}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  totalElements={totalElements}
+                  onPageChange={setPage}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size)
+                    setPage(0)
+                  }}
+                />
+              </>
             )}
           </CardContent>
         </Card>

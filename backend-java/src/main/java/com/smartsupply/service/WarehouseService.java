@@ -23,6 +23,13 @@ public class WarehouseService {
                 .collect(Collectors.toList());
     }
 
+    public List<WarehouseResponse> searchWarehouses(String search) {
+        return warehouseRepository.findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(search, search)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public WarehouseResponse getWarehouseById(String id) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));

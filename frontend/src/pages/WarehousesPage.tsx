@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -32,14 +33,22 @@ export function WarehousesPage() {
   const [error, setError] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    fetchWarehouses()
-  }, [])
+    const timer = setTimeout(() => {
+      fetchWarehouses(searchQuery)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = async (search: string = '') => {
     try {
-      const res = await fetch('http://localhost:8080/warehouses')
+      setLoading(true)
+      const url = search 
+        ? `http://localhost:8080/warehouses?search=${encodeURIComponent(search)}`
+        : 'http://localhost:8080/warehouses'
+      const res = await fetch(url)
       if (!res.ok) throw new Error('Failed to fetch warehouses')
       const data = await res.json()
       setWarehouses(data || [])
@@ -115,8 +124,14 @@ export function WarehousesPage() {
         </div>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-white">Storage Locations</CardTitle>
+            <Input
+              placeholder="Search by name or location..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xs bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+            />
           </CardHeader>
           <CardContent>
             {loading ? (
