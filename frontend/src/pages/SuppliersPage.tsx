@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -34,14 +35,22 @@ export function SuppliersPage() {
   const [error, setError] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    fetchSuppliers()
-  }, [])
+    const timer = setTimeout(() => {
+      fetchSuppliers(searchQuery)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = async (search: string = '') => {
     try {
-      const res = await fetch('http://localhost:8080/suppliers')
+      setLoading(true)
+      const url = search 
+        ? `http://localhost:8080/suppliers/search?query=${encodeURIComponent(search)}`
+        : 'http://localhost:8080/suppliers'
+      const res = await fetch(url)
       if (!res.ok) throw new Error('Failed to fetch suppliers')
       const data = await res.json()
       setSuppliers(data || [])
@@ -120,8 +129,14 @@ export function SuppliersPage() {
         </div>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-white">Vendor Directory</CardTitle>
+            <Input
+              placeholder="Search suppliers by name, email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xs bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+            />
           </CardHeader>
           <CardContent>
             {loading ? (
