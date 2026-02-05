@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -34,14 +35,22 @@ export function ProductsPage() {
   const [error, setError] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    const timer = setTimeout(() => {
+      fetchProducts(searchQuery)
+    }, 300) // Debounce 300ms
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (search: string = '') => {
     try {
-      const res = await fetch('http://localhost:8080/products')
+      setLoading(true)
+      const url = search 
+        ? `http://localhost:8080/products?search=${encodeURIComponent(search)}`
+        : 'http://localhost:8080/products'
+      const res = await fetch(url)
       if (!res.ok) throw new Error('Failed to fetch products')
       const data = await res.json()
       setProducts(data.content || [])
@@ -117,8 +126,14 @@ export function ProductsPage() {
         </div>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-white">Product Catalog</CardTitle>
+            <Input
+              placeholder="Search products by name or SKU..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xs bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+            />
           </CardHeader>
           <CardContent>
             {loading ? (
