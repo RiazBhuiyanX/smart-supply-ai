@@ -35,7 +35,6 @@ public class DataSeeder implements CommandLineRunner {
     private final InventoryItemRepository inventoryItemRepository;
     private final InventoryMovementRepository inventoryMovementRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
-    private final PurchaseOrderItemRepository purchaseOrderItemRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
