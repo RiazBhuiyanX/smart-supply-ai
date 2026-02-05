@@ -19,8 +19,15 @@ public class WarehouseController {
     private final WarehouseService warehouseService;
 
     @GetMapping
-    public ResponseEntity<List<WarehouseResponse>> getAllWarehouses() {
-        return ResponseEntity.ok(warehouseService.getAllWarehouses());
+    public ResponseEntity<List<WarehouseResponse>> getAllWarehouses(
+            @RequestParam(required = false) String search) {
+        List<WarehouseResponse> warehouses;
+        if (search != null && !search.isBlank()) {
+            warehouses = warehouseService.searchWarehouses(search);
+        } else {
+            warehouses = warehouseService.getAllWarehouses();
+        }
+        return ResponseEntity.ok(warehouses);
     }
 
     @GetMapping("/{id}")
