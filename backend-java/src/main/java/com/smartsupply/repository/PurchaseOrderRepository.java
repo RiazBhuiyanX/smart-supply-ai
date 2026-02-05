@@ -5,6 +5,8 @@ import com.smartsupply.entity.PurchaseOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,4 +24,10 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, St
     Page<PurchaseOrder> findByStatus(OrderStatus status, Pageable pageable);
     
     List<PurchaseOrder> findByCreatedById(String userId);
+    
+    // Search by order number or supplier name
+    @Query("SELECT p FROM PurchaseOrder p WHERE " +
+           "LOWER(p.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.supplier.name) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<PurchaseOrder> searchByOrderNumberOrSupplier(@Param("search") String search, Pageable pageable);
 }

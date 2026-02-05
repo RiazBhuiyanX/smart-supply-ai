@@ -33,6 +33,11 @@ public class InventoryItemService {
                 .map(this::toResponse);
     }
 
+    public Page<InventoryItemResponse> searchInventoryItems(String search, Pageable pageable) {
+        return inventoryItemRepository.searchByProductOrWarehouse(search, pageable)
+                .map(this::toResponse);
+    }
+
     public List<InventoryItemResponse> getInventoryByWarehouse(String warehouseId) {
         return inventoryItemRepository.findByWarehouseId(warehouseId).stream()
                 .map(this::toResponse)

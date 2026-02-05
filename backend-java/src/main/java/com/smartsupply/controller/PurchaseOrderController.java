@@ -27,9 +27,16 @@ public class PurchaseOrderController {
     @GetMapping
     public ResponseEntity<Page<PurchaseOrderResponse>> getAllPurchaseOrders(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(purchaseOrderService.getAllPurchaseOrders(pageable));
+        Page<PurchaseOrderResponse> orders;
+        if (search != null && !search.isBlank()) {
+            orders = purchaseOrderService.searchPurchaseOrders(search, pageable);
+        } else {
+            orders = purchaseOrderService.getAllPurchaseOrders(pageable);
+        }
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{id}")

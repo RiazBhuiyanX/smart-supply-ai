@@ -13,4 +13,7 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, String> {
     List<Warehouse> findByType(WarehouseType type);
     
     boolean existsByName(String name);
+    
+    // Search by name or location (case-insensitive)
+    List<Warehouse> findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(String name, String location);
 }
