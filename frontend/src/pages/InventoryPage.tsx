@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { PaginationControls } from '@/components/ui/pagination-controls'
 import { StockAdjustmentDialog } from '@/components/StockAdjustmentDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
@@ -38,25 +39,49 @@ export function InventoryPage() {
   const [error, setError] = useState('')
   const [adjustDialogOpen, setAdjustDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
+  
+  // Search & Pagination State
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchInventory(searchQuery)
+      // Reset to page 0 when search queries change, but not on initial load if we want to keep page? 
+      // Actually usually valid to reset page on search change.
+      if (page !== 0 && searchQuery) {
+        setPage(0)
+      } else {
+        fetchInventory()
+      }
     }, 300)
     return () => clearTimeout(timer)
-  }, [searchQuery])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, page, pageSize])
 
-  const fetchInventory = async (search: string = '') => {
+  const fetchInventory = async () => {
     try {
       setLoading(true)
-      const url = search 
-        ? `http://localhost:8080/inventory?search=${encodeURIComponent(search)}`
-        : 'http://localhost:8080/inventory'
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        size: pageSize.toString(),
+      })
+      
+      if (searchQuery) {
+        queryParams.append('search', searchQuery)
+      }
+
+      const url = `http://localhost:8080/inventory?${queryParams.toString()}`
       const res = await fetch(url)
       if (!res.ok) throw new Error('Failed to fetch inventory')
       const data = await res.json()
+      
+      // Spring Data Page interface: content, totalPages, totalElements, number (current page)
       setInventory(data.content || [])
+      setTotalPages(data.totalPages || 0)
+      setTotalElements(data.totalElements || 0)
     } catch (err) {
       setError('Failed to load inventory. Make sure the backend is running.')
     } finally {
@@ -114,7 +139,10 @@ export function InventoryPage() {
             <Input
               placeholder="Search by product, SKU, or warehouse..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setPage(0) // Reset to first page on search
+              }}
               className="max-w-xs bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
             />
           </CardHeader>
@@ -126,54 +154,68 @@ export function InventoryPage() {
             ) : inventory.length === 0 ? (
               <p className="text-slate-400">No inventory items found.</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-slate-700">
-                    <TableHead className="text-slate-300">SKU</TableHead>
-                    <TableHead className="text-slate-300">Product</TableHead>
-                    <TableHead className="text-slate-300">Warehouse</TableHead>
-                    <TableHead className="text-slate-300 text-right">Quantity</TableHead>
-                    <TableHead className="text-slate-300 text-right">Reserved</TableHead>
-                    <TableHead className="text-slate-300 text-right">Available</TableHead>
-                    <TableHead className="text-slate-300">Status</TableHead>
-                    {permissions.canAdjustStock && (
-                      <TableHead className="text-slate-300 text-center">Actions</TableHead>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {inventory.map((item) => {
-                    const status = getStockStatus(item)
-                    return (
-                      <TableRow key={item.id} className="border-slate-700">
-                        <TableCell className="text-white font-mono">{item.productSku}</TableCell>
-                        <TableCell className="text-white">{item.productName}</TableCell>
-                        <TableCell className="text-slate-400">{item.warehouseName}</TableCell>
-                        <TableCell className="text-white text-right">{item.quantity}</TableCell>
-                        <TableCell className="text-orange-400 text-right">{item.reserved}</TableCell>
-                        <TableCell className="text-green-400 text-right font-medium">{item.available}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${status.color}`}>
-                            {status.label}
-                          </span>
-                        </TableCell>
-                        {permissions.canAdjustStock && (
-                          <TableCell className="text-center">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleAdjustClick(item)}
-                              className="text-blue-400 hover:text-blue-300"
-                            >
-                              Adjust
-                            </Button>
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-slate-700">
+                      <TableHead className="text-slate-300">SKU</TableHead>
+                      <TableHead className="text-slate-300">Product</TableHead>
+                      <TableHead className="text-slate-300">Warehouse</TableHead>
+                      <TableHead className="text-slate-300 text-right">Quantity</TableHead>
+                      <TableHead className="text-slate-300 text-right">Reserved</TableHead>
+                      <TableHead className="text-slate-300 text-right">Available</TableHead>
+                      <TableHead className="text-slate-300">Status</TableHead>
+                      {permissions.canAdjustStock && (
+                        <TableHead className="text-slate-300 text-center">Actions</TableHead>
+                      )}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {inventory.map((item) => {
+                      const status = getStockStatus(item)
+                      return (
+                        <TableRow key={item.id} className="border-slate-700">
+                          <TableCell className="text-white font-mono">{item.productSku}</TableCell>
+                          <TableCell className="text-white">{item.productName}</TableCell>
+                          <TableCell className="text-slate-400">{item.warehouseName}</TableCell>
+                          <TableCell className="text-white text-right">{item.quantity}</TableCell>
+                          <TableCell className="text-orange-400 text-right">{item.reserved}</TableCell>
+                          <TableCell className="text-green-400 text-right font-medium">{item.available}</TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${status.color}`}>
+                              {status.label}
+                            </span>
                           </TableCell>
-                        )}
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
+                          {permissions.canAdjustStock && (
+                            <TableCell className="text-center">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleAdjustClick(item)}
+                                className="text-blue-400 hover:text-blue-300"
+                              >
+                                Adjust
+                              </Button>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+
+                <PaginationControls
+                  currentPage={page}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  totalElements={totalElements}
+                  onPageChange={setPage}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size)
+                    setPage(0)
+                  }}
+                />
+              </>
             )}
           </CardContent>
         </Card>
