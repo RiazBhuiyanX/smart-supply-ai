@@ -158,21 +158,21 @@ export function PurchaseOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Purchase Orders 📋</h1>
-          <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-white">Purchase Orders 📋</h1>
+          <div className="flex w-full sm:w-auto gap-3">
             {permissions.canManageOrders && (
-              <Button onClick={() => setCreateDialogOpen(true)}>
-                + Create Order
+              <Button onClick={() => setCreateDialogOpen(true)} className="flex-1 sm:flex-none">
+                + Create
               </Button>
             )}
-            <Button variant="secondary" onClick={() => navigate('/suppliers')}>
-              View Suppliers
+            <Button variant="secondary" onClick={() => navigate('/suppliers')} className="flex-1 sm:flex-none">
+              Suppliers
             </Button>
-            <Button variant="outline" onClick={() => navigate('/')}>
-              ← Dashboard
+            <Button variant="outline" onClick={() => navigate('/')} className="flex-1 sm:flex-none">
+              Dashboard
             </Button>
           </div>
         </div>

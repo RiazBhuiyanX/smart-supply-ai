@@ -110,11 +110,11 @@ export function InventoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white">Inventory 📊</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white">Inventory 📊</h1>
             <p className="text-slate-400 text-sm mt-1">
               Role: <span className="text-blue-400">{user?.role || 'Unknown'}</span>
               {permissions.canAdjustStock && (
@@ -122,21 +122,21 @@ export function InventoryPage() {
               )}
             </p>
           </div>
-          <div className="flex gap-4">
-            <Button variant="secondary" onClick={() => navigate('/warehouses')}>
+          <div className="flex w-full sm:w-auto gap-3">
+            <Button variant="secondary" onClick={() => navigate('/warehouses')} className="flex-1 sm:flex-none">
               View Warehouses
             </Button>
-            <Button variant="outline" onClick={() => navigate('/')}>
-              ← Dashboard
+            <Button variant="outline" onClick={() => navigate('/')} className="flex-1 sm:flex-none">
+              Dashboard
             </Button>
           </div>
         </div>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 pb-4">
             <CardTitle className="text-white">Stock Levels by Location</CardTitle>
             <Input
-              placeholder="Search by product, SKU, or warehouse..."
+              placeholder="Search inventory..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
