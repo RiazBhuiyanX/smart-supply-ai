@@ -4,16 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { api } from '@/lib/api'
-import { getPermissions } from '@/lib/permissions'
+
 
 export function DashboardPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const permissions = getPermissions(user?.role)
+
 
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const getRoleBadgeStyles = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'bg-purple-500/10 text-purple-400 border-purple-500/20 ring-purple-500/20'
+      case 'MANAGER': return 'bg-blue-500/10 text-blue-400 border-blue-500/20 ring-blue-500/20'
+      case 'PROCUREMENT': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 ring-emerald-500/20'
+      case 'WAREHOUSE_OP': return 'bg-amber-500/10 text-amber-400 border-amber-500/20 ring-amber-500/20'
+      default: return 'bg-slate-700 text-slate-300 border-slate-600'
+    }
   }
 
   const cards = [
@@ -32,20 +42,19 @@ export function DashboardPage() {
           <div>
             <h1 className="text-4xl font-bold text-white">SmartSupply AI 📦</h1>
             {user && (
-              <p className="text-slate-400 mt-1">
-                Welcome, {user.firstName} {user.lastName}
+              <p className="text-slate-400 mt-2 flex items-center gap-2">
+                <span>Welcome, {user.firstName} {user.lastName}</span>
+                <span className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${getRoleBadgeStyles(user.role)}`}>
+                  {user.role.replace('_', ' ')}
+                </span>
               </p>
             )}
           </div>
           <div className="flex gap-4">
-             <Button variant="outline" className="text-red-400 hover:text-red-300" onClick={handleLogout}>
+             <Button variant="destructive" onClick={handleLogout}>
               Logout
             </Button>
-            {permissions.canManageUsers && (
-              <Button variant="secondary" onClick={() => navigate('/users')}>
-                Manage Users
-              </Button>
-            )}
+
           </div>
         </div>
         

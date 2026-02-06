@@ -171,9 +171,10 @@ export function StockAdjustmentDialog({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="text-white bg-slate-700 hover:bg-slate-600"
             >
               Cancel
             </Button>
