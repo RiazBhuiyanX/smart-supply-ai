@@ -36,3 +36,6 @@ logging:
   level:
     com.smartsupply: DEBUG
     org.springframework.security: DEBUG
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
