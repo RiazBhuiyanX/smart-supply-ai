@@ -75,7 +75,7 @@ public class AiService {
 
         // Warehouses
         List<Warehouse> warehouseList = warehouseRepository.findAll();
-        sb.append("WAREHOUSES:\n");
+        sb.append("WAREHOUSES (Total: ").append(warehouseList.size()).append("):\n");
         for (Warehouse w : warehouseList) {
             sb.append(String.format("- %s (%s)\n", w.getName(), w.getLocation()));
         }
@@ -87,10 +87,30 @@ public class AiService {
         double totalValue = inventory.stream()
             .mapToDouble(i -> i.getQuantity() * i.getProduct().getPrice().doubleValue())
             .sum();
+        
+        // Calculate Most Stocked Product
+        Map<String, Integer> productStockMap = inventory.stream()
+            .collect(Collectors.groupingBy(
+                i -> i.getProduct().getName(), 
+                Collectors.summingInt(InventoryItem::getQuantity)
+            ));
             
+        Map.Entry<String, Integer> mostStocked = productStockMap.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .orElse(null);
+
         sb.append(String.format("INVENTORY SUMMARY: Total Items: %d, Total Value: %.2f EUR\n", totalQuantity, totalValue));
-        sb.append("INVENTORY DETAILS:\n");
-        for (InventoryItem i : inventory) {
+        if (mostStocked != null) {
+            sb.append(String.format("MOST STOCKED PRODUCT: %s (Total Quantity: %d)\n", mostStocked.getKey(), mostStocked.getValue()));
+        }
+        
+        sb.append("INVENTORY DETAILS (By Warehouse):\n");
+        // Sort items by quantity descending to help AI see top items first
+        List<InventoryItem> sortedInventory = inventory.stream()
+                .sorted((a, b) -> b.getQuantity().compareTo(a.getQuantity()))
+                .collect(Collectors.toList());
+
+        for (InventoryItem i : sortedInventory) {
              int safetyStock = i.getProduct().getSafetyStock() != null ? i.getProduct().getSafetyStock() : 0;
              boolean isLowStock = i.getQuantity() <= safetyStock;
              
@@ -104,17 +124,35 @@ public class AiService {
 
         // Suppliers
         List<Supplier> suppliers = supplierRepository.findAll();
-        sb.append("SUPPLIERS:\n");
+        sb.append("SUPPLIERS (Total: ").append(suppliers.size()).append("):\n");
+        
+        // Calculate Best Supplier (by PO Volume)
+        List<PurchaseOrder> allOrders = purchaseOrderRepository.findAll();
+        Map<String, Double> supplierVolume = allOrders.stream()
+             .filter(po -> po.getStatus() != OrderStatus.CANCELLED)
+             .collect(Collectors.groupingBy(
+                 po -> po.getSupplier().getName(),
+                 Collectors.summingDouble(po -> po.getTotalAmount().doubleValue())
+             ));
+
+        Map.Entry<String, Double> bestSupplier = supplierVolume.entrySet().stream()
+             .max(Map.Entry.comparingByValue())
+             .orElse(null);
+
+        if (bestSupplier != null) {
+             sb.append(String.format("BEST SUPPLIER (High Volume): %s (Total PO Value: %.2f EUR)\n", bestSupplier.getKey(), bestSupplier.getValue()));
+        }
+
         for (Supplier s : suppliers) {
             sb.append(String.format("- %s (Contact: %s, Email: %s)\n",
                     s.getName(), s.getContactPerson(), s.getEmail()));
         }
         sb.append("\n");
 
-        // Recent POs (Limit to last 10 for context size)
-        List<PurchaseOrder> orders = purchaseOrderRepository.findAll(); // In real app, use Pageable
-        sb.append("RECENT PURCHASE ORDERS:\n");
-        for (PurchaseOrder po : orders) {
+        // Recent POs
+        // Reuse allOrders list but limit for display if needed, here just showing last 10 effectively in real app logic
+        sb.append("RECENT PURCHASE ORDERS (Total: ").append(allOrders.size()).append("):\n");
+        for (PurchaseOrder po : allOrders) {
              String itemsSummary = po.getItems().stream()
                  .map(item -> String.format("%dx %s", item.getQuantityOrdered(), item.getProduct().getName()))
                  .collect(Collectors.joining(", "));
