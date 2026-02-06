@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 import type { Role } from '@/lib/permissions'
+import { api } from '@/lib/api'
 
 interface User {
   id: string
@@ -40,18 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('http://localhost:8080/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Login failed' }))
-      throw new Error(error.message || 'Invalid credentials')
-    }
-
-    const data = await response.json()
+    // api.post handles headers and error throwing automatically
+    const data = await api.post<{ accessToken: string; user: User }>('/auth/login', { email, password })
     
     // Backend returns 'accessToken' not 'token'
     setToken(data.accessToken)

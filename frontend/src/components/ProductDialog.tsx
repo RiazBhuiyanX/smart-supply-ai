@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { api } from '@/lib/api'
 
 interface Product {
   id?: string
@@ -70,18 +71,14 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
 
     try {
       const url = product?.id 
-        ? `http://localhost:8080/products/${product.id}`
-        : 'http://localhost:8080/products'
+        ? `/products/${product.id}`
+        : '/products'
       
-      const response = await fetch(url, {
-        method: product?.id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      const saved = product?.id 
+        ? await api.put(url, formData)
+        : await api.post(url, formData)
 
-      if (!response.ok) throw new Error('Failed to save product')
-      
-      const saved = await response.json()
+      // api client throws on error automatically
       onSave(saved)
       onOpenChange(false)
     } catch (err) {

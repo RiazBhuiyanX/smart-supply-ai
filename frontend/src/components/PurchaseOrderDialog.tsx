@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { api } from '@/lib/api'
 
 interface Supplier {
   id: string
@@ -60,8 +61,8 @@ export function PurchaseOrderDialog({ open, onOpenChange, onSave }: PurchaseOrde
 
   const fetchSuppliers = async () => {
     try {
-      const res = await fetch('http://localhost:8080/suppliers')
-      if (res.ok) setSuppliers(await res.json())
+      const data = await api.get<Supplier[]>('/suppliers')
+      setSuppliers(data)
     } catch (err) {
       console.error('Failed to fetch suppliers', err)
     }
@@ -69,11 +70,10 @@ export function PurchaseOrderDialog({ open, onOpenChange, onSave }: PurchaseOrde
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:8080/products')
-      if (res.ok) {
-        const data = await res.json()
-        setProducts(data.content || data || [])
-      }
+      const data = await api.get<{ content: Product[] } | Product[]>('/products')
+      // Handle both paginated and list responses just in case
+      // @ts-ignore
+      setProducts(data.content || data || [])
     } catch (err) {
       console.error('Failed to fetch products', err)
     }
@@ -116,26 +116,16 @@ export function PurchaseOrderDialog({ open, onOpenChange, onSave }: PurchaseOrde
     setError('')
 
     try {
-      const res = await fetch('http://localhost:8080/purchase-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          supplierId: selectedSupplier,
-          expectedDate: expectedDate || null,
-          items: items.map(i => ({
-            productId: i.productId,
-            quantity: i.quantity,
-            unitPrice: i.unitPrice
-          }))
-        }),
+      const created = await api.post('/purchase-orders', {
+        supplierId: selectedSupplier,
+        expectedDate: expectedDate || null,
+        items: items.map(i => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice
+        }))
       })
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to create order')
-      }
-
-      const created = await res.json()
       onSave(created)
       onOpenChange(false)
     } catch (err) {

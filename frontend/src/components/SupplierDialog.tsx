@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { api } from '@/lib/api'
 
 interface Supplier {
   id?: string
@@ -63,18 +64,14 @@ export function SupplierDialog({ open, onOpenChange, supplier, onSave }: Supplie
 
     try {
       const url = supplier?.id 
-        ? `http://localhost:8080/suppliers/${supplier.id}`
-        : 'http://localhost:8080/suppliers'
+        ? `/suppliers/${supplier.id}`
+        : '/suppliers'
       
-      const response = await fetch(url, {
-        method: supplier?.id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      const saved = supplier?.id 
+        ? await api.put(url, formData)
+        : await api.post(url, formData)
 
-      if (!response.ok) throw new Error('Failed to save supplier')
-      
-      const saved = await response.json()
+      // api client throws on error automatically
       onSave(saved)
       onOpenChange(false)
     } catch (err) {

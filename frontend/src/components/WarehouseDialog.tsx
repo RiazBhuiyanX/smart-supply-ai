@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { api } from '@/lib/api'
 
 interface Warehouse {
   id: string
@@ -62,21 +63,14 @@ export function WarehouseDialog({ open, onOpenChange, warehouse, onSave }: Wareh
 
     try {
       const url = warehouse
-        ? `http://localhost:8080/warehouses/${warehouse.id}`
-        : 'http://localhost:8080/warehouses'
+        ? `/warehouses/${warehouse.id}`
+        : '/warehouses'
       
-      const res = await fetch(url, {
-        method: warehouse ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      const saved = warehouse
+        ? await api.put(url, formData)
+        : await api.post(url, formData)
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to save warehouse')
-      }
-
-      const saved = await res.json()
+      // api client throws on error automatically
       onSave(saved)
       onOpenChange(false)
     } catch (err) {

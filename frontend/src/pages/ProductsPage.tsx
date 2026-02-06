@@ -15,6 +15,7 @@ import { PaginationControls } from '@/components/ui/pagination-controls'
 import { ProductDialog } from '@/components/ProductDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
+import { api } from '@/lib/api'
 
 interface Product {
   id: string
@@ -69,10 +70,8 @@ export function ProductsPage() {
         queryParams.append('search', searchQuery)
       }
 
-      const url = `http://localhost:8080/products?${queryParams.toString()}`
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed to fetch products')
-      const data = await res.json()
+      const url = `/products?${queryParams.toString()}`
+      const data = await api.get<{ content: Product[], totalPages: number, totalElements: number }>(url)
       
       setProducts(data.content || [])
       setTotalPages(data.totalPages || 0)
@@ -125,8 +124,7 @@ export function ProductsPage() {
     if (!confirm('Are you sure you want to delete this product?')) return
     
     try {
-      const res = await fetch(`http://localhost:8080/products/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete')
+      await api.delete(`/products/${id}`)
       setProducts(products.filter(p => p.id !== id))
       // Refetch if page becomes empty?
       if (products.length === 1 && page > 0) {

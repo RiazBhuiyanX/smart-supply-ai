@@ -32,6 +32,7 @@ export interface Permissions {
   // Warehouses
   canViewWarehouses: boolean
   canManageWarehouses: boolean
+
 }
 
 const rolePermissions: Record<Role, Permissions> = {
@@ -48,6 +49,7 @@ const rolePermissions: Record<Role, Permissions> = {
     canAdjustStock: true,
     canViewWarehouses: true,
     canManageWarehouses: true,
+
   },
   MANAGER: {
     canViewProducts: true,
@@ -62,6 +64,7 @@ const rolePermissions: Record<Role, Permissions> = {
     canAdjustStock: true,
     canViewWarehouses: true,
     canManageWarehouses: true,
+
   },
   PROCUREMENT: {
     canViewProducts: true,
@@ -76,6 +79,7 @@ const rolePermissions: Record<Role, Permissions> = {
     canAdjustStock: false,
     canViewWarehouses: true,
     canManageWarehouses: false,
+
   },
   WAREHOUSE_OP: {
     canViewProducts: true,
@@ -90,6 +94,7 @@ const rolePermissions: Record<Role, Permissions> = {
     canAdjustStock: true,
     canViewWarehouses: true,
     canManageWarehouses: false,
+
   },
 }
 
@@ -109,6 +114,7 @@ export function getPermissions(role: Role | null | undefined): Permissions {
       canAdjustStock: false,
       canViewWarehouses: false,
       canManageWarehouses: false,
+
     }
   }
   return rolePermissions[role] || rolePermissions.WAREHOUSE_OP

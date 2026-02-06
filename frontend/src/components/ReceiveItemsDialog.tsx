@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { api } from '@/lib/api'
 
 interface PurchaseOrderItem {
   id: string
@@ -70,13 +71,10 @@ export function ReceiveItemsDialog({
 
   const fetchWarehouses = async () => {
     try {
-      const res = await fetch('http://localhost:8080/warehouses')
-      if (res.ok) {
-        const data = await res.json()
-        setWarehouses(data || [])
-        if (data.length > 0 && !selectedWarehouse) {
-          setSelectedWarehouse(data[0].id)
-        }
+      const data = await api.get<Warehouse[]>('/warehouses')
+      setWarehouses(data || [])
+      if (data.length > 0 && !selectedWarehouse) {
+        setSelectedWarehouse(data[0].id)
       }
     } catch (err) {
       console.error('Failed to fetch warehouses', err)
@@ -107,21 +105,11 @@ export function ReceiveItemsDialog({
         throw new Error('Please enter quantity for at least one item')
       }
 
-      const res = await fetch(`http://localhost:8080/purchase-orders/${purchaseOrder.id}/receive`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          warehouseId: selectedWarehouse,
-          items: itemsToReceive
-        }),
+      const updated = await api.post<PurchaseOrder>(`/purchase-orders/${purchaseOrder.id}/receive`, {
+        warehouseId: selectedWarehouse,
+        items: itemsToReceive
       })
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to receive items')
-      }
-
-      const updated = await res.json()
       onReceive(updated)
       onOpenChange(false)
     } catch (err) {

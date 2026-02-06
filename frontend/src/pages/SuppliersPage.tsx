@@ -14,6 +14,7 @@ import {
 import { SupplierDialog } from '@/components/SupplierDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
+import { api } from '@/lib/api'
 
 interface Supplier {
   id: string
@@ -48,11 +49,9 @@ export function SuppliersPage() {
     try {
       setLoading(true)
       const url = search 
-        ? `http://localhost:8080/suppliers/search?query=${encodeURIComponent(search)}`
-        : 'http://localhost:8080/suppliers'
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed to fetch suppliers')
-      const data = await res.json()
+        ? `/suppliers/search?query=${encodeURIComponent(search)}`
+        : '/suppliers'
+      const data = await api.get<Supplier[]>(url)
       setSuppliers(data || [])
     } catch (err) {
       setError('Failed to load suppliers. Make sure the backend is running.')
@@ -97,8 +96,7 @@ export function SuppliersPage() {
     if (!confirm('Are you sure you want to delete this supplier?')) return
     
     try {
-      const res = await fetch(`http://localhost:8080/suppliers/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete')
+      await api.delete(`/suppliers/${id}`)
       setSuppliers(suppliers.filter(s => s.id !== id))
     } catch (err) {
       alert('Failed to delete supplier')
