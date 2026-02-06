@@ -36,4 +36,10 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
            "LOWER(i.product.sku) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(i.warehouse.name) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<InventoryItem> searchByProductOrWarehouse(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT i.product.name, SUM(i.quantity) as total FROM InventoryItem i GROUP BY i.product.name ORDER BY total DESC")
+    List<Object[]> findMostStockedProducts(Pageable pageable);
+
+    @Query("SELECT i.product.name, SUM(i.quantity) as total FROM InventoryItem i GROUP BY i.product.name ORDER BY total ASC")
+    List<Object[]> findLeastStockedProducts(Pageable pageable);
 }

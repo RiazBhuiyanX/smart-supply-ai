@@ -30,4 +30,7 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, St
            "LOWER(p.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(p.supplier.name) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<PurchaseOrder> searchByOrderNumberOrSupplier(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT p.supplier.name, SUM(p.totalAmount) as total FROM PurchaseOrder p GROUP BY p.supplier.name ORDER BY total DESC")
+    List<Object[]> findTopSuppliersByTotalAmount(Pageable pageable);
 }
