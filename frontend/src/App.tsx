@@ -10,6 +10,7 @@ import { InventoryPage } from '@/pages/InventoryPage'
 import { SuppliersPage } from '@/pages/SuppliersPage'
 import { PurchaseOrdersPage } from '@/pages/PurchaseOrdersPage'
 import { InventoryMovementsPage } from '@/pages/InventoryMovementsPage'
+import { AiAssistant } from './components/AiAssistant'
 import './index.css'
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
             <ProtectedRoute><InventoryMovementsPage /></ProtectedRoute>
           } />
         </Routes>
+        <AiAssistant />
       </AuthProvider>
     </BrowserRouter>
   )
