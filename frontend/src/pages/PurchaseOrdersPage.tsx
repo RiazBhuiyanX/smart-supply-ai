@@ -15,6 +15,7 @@ import { ReceiveItemsDialog } from '@/components/ReceiveItemsDialog'
 import { PurchaseOrderDialog } from '@/components/PurchaseOrderDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
+import { api } from '@/lib/api'
 
 interface PurchaseOrderItem {
   id: string
@@ -62,11 +63,9 @@ export function PurchaseOrdersPage() {
     try {
       setLoading(true)
       const url = search 
-        ? `http://localhost:8080/purchase-orders?search=${encodeURIComponent(search)}`
-        : 'http://localhost:8080/purchase-orders'
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed to fetch orders')
-      const data = await res.json()
+        ? `/purchase-orders?search=${encodeURIComponent(search)}`
+        : '/purchase-orders'
+      const data = await api.get<{ content: PurchaseOrder[] }>(url)
       setOrders(data.content || [])
     } catch (err) {
       setError('Failed to load orders. Make sure the backend is running.')
@@ -77,10 +76,7 @@ export function PurchaseOrdersPage() {
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      const res = await fetch(`http://localhost:8080/purchase-orders/${orderId}/status?status=${newStatus}`, {
-        method: 'POST'
-      })
-      if (!res.ok) throw new Error('Failed to update status')
+      await api.post(`/purchase-orders/${orderId}/status?status=${newStatus}`, {})
       fetchOrders()
     } catch (err) {
       alert('Failed to update status')
@@ -99,13 +95,7 @@ export function PurchaseOrdersPage() {
   const handleDelete = async (orderId: string) => {
     if (!confirm('Delete this purchase order?')) return
     try {
-      const res = await fetch(`http://localhost:8080/purchase-orders/${orderId}`, {
-        method: 'DELETE'
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to delete')
-      }
+      await api.delete(`/purchase-orders/${orderId}`)
       fetchOrders()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to delete order')

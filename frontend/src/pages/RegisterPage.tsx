@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { api } from '@/lib/api'
 
 export function RegisterPage() {
   const navigate = useNavigate()
@@ -34,28 +35,13 @@ export function RegisterPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          inviteCode: formData.inviteCode || null,
-        }),
+      await api.post('/auth/register', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        inviteCode: formData.inviteCode || null,
       })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        if (data.errors && typeof data.errors === 'object') {
-          const errorMessages = Object.entries(data.errors)
-            .map(([field, msg]) => `${field}: ${msg}`)
-            .join('\n')
-          throw new Error(errorMessages || data.message || 'Registration failed')
-        }
-        throw new Error(data.message || 'Registration failed')
-      }
 
       setSuccess(true)
       setTimeout(() => navigate('/login'), 2000)

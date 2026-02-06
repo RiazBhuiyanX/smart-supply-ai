@@ -3,10 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { api } from '@/lib/api'
+import { getPermissions } from '@/lib/permissions'
 
 export function DashboardPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const permissions = getPermissions(user?.role)
 
   const handleLogout = () => {
     logout()
@@ -34,9 +37,16 @@ export function DashboardPage() {
               </p>
             )}
           </div>
-          <Button variant="destructive" onClick={handleLogout}>
-            Logout
-          </Button>
+          <div className="flex gap-4">
+             <Button variant="outline" className="text-red-400 hover:text-red-300" onClick={handleLogout}>
+              Logout
+            </Button>
+            {permissions.canManageUsers && (
+              <Button variant="secondary" onClick={() => navigate('/users')}>
+                Manage Users
+              </Button>
+            )}
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -75,8 +85,7 @@ function DashboardStats() {
   const [stats, setStats] = useState<any>(null)
 
   useEffect(() => {
-    fetch('http://localhost:8080/statistics/dashboard')
-      .then(res => res.json())
+    api.get<any>('/statistics/dashboard')
       .then(data => setStats(data))
       .catch(err => console.error('Failed to load stats', err))
   }, [])

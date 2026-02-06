@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { api } from '@/lib/api'
 
 interface InventoryItem {
   id: string
@@ -61,21 +62,11 @@ export function StockAdjustmentDialog({
     try {
       const newQuantity = calculateNewQuantity()
       
-      const res = await fetch(`http://localhost:8080/inventory/${inventoryItem.id}/adjust`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          newQuantity,
-          reason: reason || `Stock ${adjustmentType.toLowerCase()}: ${amount} units`,
-        }),
+      const updated = await api.post<InventoryItem>(`/inventory/${inventoryItem.id}/adjust`, {
+        newQuantity,
+        reason: reason || `Stock ${adjustmentType.toLowerCase()}: ${amount} units`,
       })
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to adjust stock')
-      }
-
-      const updated = await res.json()
       onAdjust(updated)
       onOpenChange(false)
       

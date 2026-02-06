@@ -84,13 +84,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints (no auth required)
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
-                        .requestMatchers("/products/**").permitAll()  // TODO: protect in production
-                        .requestMatchers("/warehouses/**").permitAll()  // TODO: protect in production
-                        .requestMatchers("/inventory/**").permitAll()  // TODO: protect in production
-                        .requestMatchers("/suppliers/**").permitAll()  // TODO: protect in production
-                        .requestMatchers("/purchase-orders/**").permitAll()  // TODO: protect in production
-                        .requestMatchers("/inventory-movements/**").permitAll()  // TODO: protect in production
-                        .requestMatchers("/statistics/**").permitAll()  // TODO: protect in production
+                        .requestMatchers("/products/**").authenticated()
+                        .requestMatchers("/warehouses/**").authenticated()
+                        .requestMatchers("/inventory/**").authenticated()
+                        .requestMatchers("/suppliers/**").authenticated()
+                        .requestMatchers("/purchase-orders/**").authenticated()
+                        .requestMatchers("/inventory-movements/**").authenticated()
+                        .requestMatchers("/statistics/**").authenticated()
                         
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

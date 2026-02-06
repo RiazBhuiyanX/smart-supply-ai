@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { api } from '@/lib/api'
 
 interface InventoryMovement {
   id: string
@@ -36,9 +37,7 @@ export function InventoryMovementsPage() {
 
   const fetchMovements = async () => {
     try {
-      const res = await fetch('http://localhost:8080/inventory-movements')
-      if (!res.ok) throw new Error('Failed to fetch movements')
-      const data = await res.json()
+      const data = await api.get<{ content: InventoryMovement[] }>('/inventory-movements')
       setMovements(data.content || [])
     } catch (err) {
       setError('Failed to load movements. Make sure the backend is running.')

@@ -14,6 +14,7 @@ import {
 import { WarehouseDialog } from '@/components/WarehouseDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
+import { api } from '@/lib/api'
 
 interface Warehouse {
   id: string
@@ -46,11 +47,9 @@ export function WarehousesPage() {
     try {
       setLoading(true)
       const url = search 
-        ? `http://localhost:8080/warehouses?search=${encodeURIComponent(search)}`
-        : 'http://localhost:8080/warehouses'
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed to fetch warehouses')
-      const data = await res.json()
+        ? `/warehouses?search=${encodeURIComponent(search)}`
+        : '/warehouses'
+      const data = await api.get<Warehouse[]>(url)
       setWarehouses(data || [])
     } catch (err) {
       setError('Failed to load warehouses. Make sure the backend is running.')
@@ -95,8 +94,7 @@ export function WarehousesPage() {
     if (!confirm('Are you sure you want to delete this warehouse?')) return
     
     try {
-      const res = await fetch(`http://localhost:8080/warehouses/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete')
+      await api.delete(`/warehouses/${id}`)
       setWarehouses(warehouses.filter(w => w.id !== id))
     } catch (err) {
       alert('Failed to delete warehouse')

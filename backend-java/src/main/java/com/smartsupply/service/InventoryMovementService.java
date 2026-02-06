@@ -5,6 +5,7 @@ import com.smartsupply.dto.InventoryMovementResponse;
 import com.smartsupply.entity.InventoryItem;
 import com.smartsupply.entity.InventoryMovement;
 import com.smartsupply.entity.MovementType;
+import com.smartsupply.entity.User;
 import com.smartsupply.repository.InventoryItemRepository;
 import com.smartsupply.repository.InventoryMovementRepository;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +102,17 @@ public class InventoryMovementService {
 
         inventoryItemRepository.save(inventoryItem);
 
+        User performedBy = null;
+        try {
+            org.springframework.security.core.Authentication auth = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof User) {
+                performedBy = (User) auth.getPrincipal();
+            }
+        } catch (Exception e) {
+            // Context might be empty during seeding or system events
+        }
+
         InventoryMovement movement = InventoryMovement.builder()
                 .inventoryItem(inventoryItem)
                 .movementType(request.getMovementType())
@@ -110,7 +122,7 @@ public class InventoryMovementService {
                 .reason(request.getReason())
                 .referenceType(request.getReferenceType())
                 .referenceId(request.getReferenceId())
-                .performedBy(null) // TODO: Add user tracking
+                .performedBy(performedBy)
                 .build();
 
         movement = movementRepository.save(movement);

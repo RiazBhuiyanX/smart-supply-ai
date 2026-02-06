@@ -15,6 +15,7 @@ import { PaginationControls } from '@/components/ui/pagination-controls'
 import { StockAdjustmentDialog } from '@/components/StockAdjustmentDialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPermissions } from '@/lib/permissions'
+import { api } from '@/lib/api'
 
 interface InventoryItem {
   id: string
@@ -73,10 +74,8 @@ export function InventoryPage() {
         queryParams.append('search', searchQuery)
       }
 
-      const url = `http://localhost:8080/inventory?${queryParams.toString()}`
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed to fetch inventory')
-      const data = await res.json()
+      const url = `/inventory?${queryParams.toString()}`
+      const data = await api.get<{ content: InventoryItem[], totalPages: number, totalElements: number }>(url)
       
       // Spring Data Page interface: content, totalPages, totalElements, number (current page)
       setInventory(data.content || [])
