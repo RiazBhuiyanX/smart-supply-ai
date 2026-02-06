@@ -36,11 +36,11 @@ export function DashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white">SmartSupply AI 📦</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white">SmartSupply AI 📦</h1>
             {user && (
               <p className="text-slate-400 mt-2 flex items-center gap-2">
                 <span>Welcome, {user.firstName} {user.lastName}</span>
@@ -50,8 +50,8 @@ export function DashboardPage() {
               </p>
             )}
           </div>
-          <div className="flex gap-4">
-             <Button variant="destructive" onClick={handleLogout}>
+          <div className="flex w-full sm:w-auto gap-4">
+             <Button variant="destructive" onClick={handleLogout} className="flex-1 sm:flex-none">
               Logout
             </Button>
 

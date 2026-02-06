@@ -101,7 +101,7 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm text-slate-400">Name *</label>
               <Input
@@ -134,7 +134,7 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-sm text-slate-400">Price *</label>
               <Input

@@ -95,16 +95,16 @@ export function StockAdjustmentDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-slate-900/50 p-4 rounded-lg">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="p-2 bg-slate-800/50 rounded sm:bg-transparent sm:p-0">
                 <p className="text-slate-400 text-sm">Current</p>
                 <p className="text-2xl font-bold text-white">{inventoryItem.quantity}</p>
               </div>
-              <div>
+              <div className="p-2 bg-slate-800/50 rounded sm:bg-transparent sm:p-0">
                 <p className="text-slate-400 text-sm">Reserved</p>
                 <p className="text-2xl font-bold text-yellow-400">{inventoryItem.reserved}</p>
               </div>
-              <div>
+              <div className="p-2 bg-slate-800/50 rounded sm:bg-transparent sm:p-0">
                 <p className="text-slate-400 text-sm">Available</p>
                 <p className="text-2xl font-bold text-green-400">
                   {inventoryItem.quantity - inventoryItem.reserved}
