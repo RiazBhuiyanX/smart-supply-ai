@@ -113,72 +113,72 @@ public class DataSeeder implements CommandLineRunner {
         
         // Електроника (Electronics)
         products.addAll(createProductCategory("Електроника", Arrays.asList(
-            new String[]{"ELEC-001", "Лаптоп Lenovo ThinkPad", "2499.99", "30"},
-            new String[]{"ELEC-002", "Безжична мишка Logitech", "59.99", "200"},
-            new String[]{"ELEC-003", "Механична клавиатура", "279.99", "80"},
-            new String[]{"ELEC-004", "Монитор 27\" 4K Samsung", "899.99", "50"},
-            new String[]{"ELEC-005", "USB-C Hub 7-Port", "89.99", "150"},
-            new String[]{"ELEC-006", "Уеб камера HD 1080p", "149.99", "100"},
-            new String[]{"ELEC-007", "Bluetooth слушалки Sony", "349.99", "60"},
-            new String[]{"ELEC-008", "Външен SSD 1TB Samsung", "199.99", "90"},
-            new String[]{"ELEC-009", "Смарт колонка Google", "179.99", "70"},
-            new String[]{"ELEC-010", "Безжично зарядно", "69.99", "180"}
+            new String[]{"ELEC-001", "Лаптоп Lenovo ThinkPad", "1280.00", "30"},
+            new String[]{"ELEC-002", "Безжична мишка Logitech", "30.00", "200"},
+            new String[]{"ELEC-003", "Механична клавиатура", "140.00", "80"},
+            new String[]{"ELEC-004", "Монитор 27\" 4K Samsung", "460.00", "50"},
+            new String[]{"ELEC-005", "USB-C Hub 7-Port", "45.00", "150"},
+            new String[]{"ELEC-006", "Уеб камера HD 1080p", "75.00", "100"},
+            new String[]{"ELEC-007", "Bluetooth слушалки Sony", "180.00", "60"},
+            new String[]{"ELEC-008", "Външен SSD 1TB Samsung", "100.00", "90"},
+            new String[]{"ELEC-009", "Смарт колонка Google", "90.00", "70"},
+            new String[]{"ELEC-010", "Безжично зарядно", "35.00", "180"}
         )));
 
         // Компоненти (Components)
         products.addAll(createProductCategory("Компоненти", Arrays.asList(
-            new String[]{"COMP-001", "Процесор Intel Core i7-14700K", "799.99", "25"},
-            new String[]{"COMP-002", "Видеокарта RTX 4070 Super", "1199.99", "20"},
-            new String[]{"COMP-003", "RAM памет DDR5 32GB", "249.99", "50"},
-            new String[]{"COMP-004", "Дънна платка Z790", "479.99", "35"},
-            new String[]{"COMP-005", "Захранване 850W Gold", "219.99", "45"},
-            new String[]{"COMP-006", "Водно охлаждане 360mm", "299.99", "30"},
-            new String[]{"COMP-007", "NVMe SSD 2TB", "299.99", "60"},
-            new String[]{"COMP-008", "Кутия за PC Full Tower", "249.99", "25"},
-            new String[]{"COMP-009", "RGB вентилатори 3 бр.", "89.99", "100"},
-            new String[]{"COMP-010", "Термо паста", "14.99", "300"}
+            new String[]{"COMP-001", "Процесор Intel Core i7-14700K", "410.00", "25"},
+            new String[]{"COMP-002", "Видеокарта RTX 4070 Super", "615.00", "20"},
+            new String[]{"COMP-003", "RAM памет DDR5 32GB", "125.00", "50"},
+            new String[]{"COMP-004", "Дънна платка Z790", "245.00", "35"},
+            new String[]{"COMP-005", "Захранване 850W Gold", "110.00", "45"},
+            new String[]{"COMP-006", "Водно охлаждане 360mm", "150.00", "30"},
+            new String[]{"COMP-007", "NVMe SSD 2TB", "150.00", "60"},
+            new String[]{"COMP-008", "Кутия за PC Full Tower", "125.00", "25"},
+            new String[]{"COMP-009", "RGB вентилатори 3 бр.", "45.00", "100"},
+            new String[]{"COMP-010", "Термо паста", "8.00", "300"}
         )));
 
         // Офис консумативи (Office Supplies)
         products.addAll(createProductCategory("Офис консумативи", Arrays.asList(
-            new String[]{"OFFC-001", "Хартия А4 500 листа", "12.99", "500"},
-            new String[]{"OFFC-002", "Тонер касета черна HP", "89.99", "100"},
-            new String[]{"OFFC-003", "Тонер касета цветна HP", "129.99", "80"},
-            new String[]{"OFFC-004", "Телбод тежък", "39.99", "60"},
-            new String[]{"OFFC-005", "Органайзер за бюро", "49.99", "80"},
-            new String[]{"OFFC-006", "Бяла дъска 120x90", "149.99", "30"},
-            new String[]{"OFFC-007", "Маркери комплект 12 бр.", "24.99", "200"},
-            new String[]{"OFFC-008", "Тетрадки А5 5 бр.", "14.99", "300"},
-            new String[]{"OFFC-009", "Кламери 100 бр.", "4.99", "500"},
-            new String[]{"OFFC-010", "Самозалепващи листчета", "9.99", "400"}
+            new String[]{"OFFC-001", "Хартия А4 500 листа", "6.50", "500"},
+            new String[]{"OFFC-002", "Тонер касета черна HP", "45.00", "100"},
+            new String[]{"OFFC-003", "Тонер касета цветна HP", "65.00", "80"},
+            new String[]{"OFFC-004", "Телбод тежък", "20.00", "60"},
+            new String[]{"OFFC-005", "Органайзер за бюро", "25.00", "80"},
+            new String[]{"OFFC-006", "Бяла дъска 120x90", "75.00", "30"},
+            new String[]{"OFFC-007", "Маркери комплект 12 бр.", "12.00", "200"},
+            new String[]{"OFFC-008", "Тетрадки А5 5 бр.", "7.50", "300"},
+            new String[]{"OFFC-009", "Кламери 100 бр.", "2.50", "500"},
+            new String[]{"OFFC-010", "Самозалепващи листчета", "5.00", "400"}
         )));
 
         // Мрежово оборудване (Networking)
         products.addAll(createProductCategory("Мрежово оборудване", Arrays.asList(
-            new String[]{"NETW-001", "Рутер WiFi 6E TP-Link", "399.99", "40"},
-            new String[]{"NETW-002", "Мрежов суич 24-порта", "349.99", "25"},
-            new String[]{"NETW-003", "Ethernet кабел Cat6 15м", "29.99", "200"},
-            new String[]{"NETW-004", "Access Point Ubiquiti", "299.99", "35"},
-            new String[]{"NETW-005", "Пач панел 48-порта", "149.99", "20"},
-            new String[]{"NETW-006", "Мрежов шкаф 42U", "799.99", "10"},
-            new String[]{"NETW-007", "PoE инжектор 8-порта", "199.99", "30"},
-            new String[]{"NETW-008", "Оптичен кабел 100м", "249.99", "15"},
-            new String[]{"NETW-009", "Мрежов тестер", "119.99", "40"},
-            new String[]{"NETW-010", "Кабелен органайзер", "49.99", "100"}
+            new String[]{"NETW-001", "Рутер WiFi 6E TP-Link", "200.00", "40"},
+            new String[]{"NETW-002", "Мрежов суич 24-порта", "180.00", "25"},
+            new String[]{"NETW-003", "Ethernet кабел Cat6 15м", "15.00", "200"},
+            new String[]{"NETW-004", "Access Point Ubiquiti", "150.00", "35"},
+            new String[]{"NETW-005", "Пач панел 48-порта", "75.00", "20"},
+            new String[]{"NETW-006", "Мрежов шкаф 42U", "410.00", "10"},
+            new String[]{"NETW-007", "PoE инжектор 8-порта", "100.00", "30"},
+            new String[]{"NETW-008", "Оптичен кабел 100м", "125.00", "15"},
+            new String[]{"NETW-009", "Мрежов тестер", "60.00", "40"},
+            new String[]{"NETW-010", "Кабелен органайзер", "25.00", "100"}
         )));
 
         // Офис мебели (Office Furniture)
         products.addAll(createProductCategory("Офис мебели", Arrays.asList(
-            new String[]{"FURN-001", "Ергономичен офис стол", "599.99", "20"},
-            new String[]{"FURN-002", "Електрическо бюро 160см", "899.99", "15"},
-            new String[]{"FURN-003", "Стойка за монитор двойна", "149.99", "40"},
-            new String[]{"FURN-004", "LED настолна лампа", "79.99", "80"},
-            new String[]{"FURN-005", "Шкаф с 3 чекмеджета", "299.99", "25"},
-            new String[]{"FURN-006", "Етажерка за книги 5 рафта", "219.99", "30"},
-            new String[]{"FURN-007", "Заседателна маса 240см", "1099.99", "8"},
-            new String[]{"FURN-008", "Посетителски стол", "219.99", "35"},
-            new String[]{"FURN-009", "Преграден параван", "349.99", "12"},
-            new String[]{"FURN-010", "Поставка за клавиатура", "89.99", "50"}
+            new String[]{"FURN-001", "Ергономичен офис стол", "300.00", "20"},
+            new String[]{"FURN-002", "Електрическо бюро 160см", "460.00", "15"},
+            new String[]{"FURN-003", "Стойка за монитор двойна", "75.00", "40"},
+            new String[]{"FURN-004", "LED настолна лампа", "40.00", "80"},
+            new String[]{"FURN-005", "Шкаф с 3 чекмеджета", "150.00", "25"},
+            new String[]{"FURN-006", "Етажерка за книги 5 рафта", "110.00", "30"},
+            new String[]{"FURN-007", "Заседателна маса 240см", "560.00", "8"},
+            new String[]{"FURN-008", "Посетителски стол", "110.00", "35"},
+            new String[]{"FURN-009", "Преграден параван", "180.00", "12"},
+            new String[]{"FURN-010", "Поставка за клавиатура", "45.00", "50"}
         )));
 
         return productRepository.saveAll(products);

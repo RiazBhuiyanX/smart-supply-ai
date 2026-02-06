@@ -8,8 +8,8 @@ spring:
   # Database Configuration (same PostgreSQL as NestJS)
   datasource:
     url: jdbc:postgresql://localhost:5432/smartsupply_db
-    username: smartsupply
-    password: smartsupply_dev_password
+    username: ${POSTGRES_USER:smartsupply}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   # JPA/Hibernate Settings
@@ -28,7 +28,7 @@ server:
 
 # JWT Configuration
 jwt:
-  secret: smartsupply-super-secret-jwt-key-change-in-production
+  secret: ${JWT_SECRET}
   expiration: 604800000  # 7 days in milliseconds
 
 # Logging

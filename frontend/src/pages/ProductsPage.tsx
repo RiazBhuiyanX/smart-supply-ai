@@ -206,7 +206,7 @@ export function ProductsPage() {
                         <TableCell className="text-white">{product.name}</TableCell>
                         <TableCell className="text-slate-400">{product.category || '-'}</TableCell>
                         <TableCell className="text-green-400 text-right">
-                          ${product.price?.toFixed(2)}
+                          €{product.price?.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-slate-400 text-right">
                           {product.safetyStock || '-'}
