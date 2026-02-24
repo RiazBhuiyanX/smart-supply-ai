@@ -7,9 +7,9 @@ spring:
 
   # Database Configuration (same PostgreSQL as NestJS)
   datasource:
-    url: jdbc:postgresql://localhost:5432/smartsupply_db
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/smartsupply_db}
     username: ${POSTGRES_USER:smartsupply}
-    password: ${POSTGRES_PASSWORD}
+    password: ${POSTGRES_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
   # JPA/Hibernate Settings
@@ -28,7 +28,7 @@ server:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:default-dev-secret-change-in-production}
   expiration: 604800000  # 7 days in milliseconds
 
 # Logging
@@ -38,4 +38,4 @@ logging:
     org.springframework.security: DEBUG
 
 gemini:
-  api-key: ${GEMINI_API_KEY}
+  api-key: ${GEMINI_API_KEY:}
