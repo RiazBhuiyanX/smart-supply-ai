@@ -1,35 +1,29 @@
 # Render Blueprint - Infrastructure as Code
-# This file configures all services for one-click deployment on Render.com
+# NOTE: This is a reference file. The actual deployment was done manually via the Render UI.
+# To use this for one-click deploy: Dashboard -> New -> Blueprint -> Connect Repo
 
 services:
   # Spring Boot Backend API
   - type: web
     name: smartsupply-api
     runtime: docker
-    dockerfilePath: ./backend-java/Dockerfile
-    dockerContext: ./backend-java
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    rootDir: backend-java
     plan: free
     envVars:
-      - key: POSTGRES_USER
-        fromDatabase:
-          name: smartsupply-db
-          property: user
-      - key: POSTGRES_PASSWORD
-        fromDatabase:
-          name: smartsupply-db
-          property: password
       - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: smartsupply-db
-          property: connectionString
-          # Render provides postgres:// but Spring needs jdbc:postgresql://
-          # You'll need to set this manually as: jdbc:postgresql://HOST:PORT/DB_NAME
+        sync: false  # Set manually: jdbc:postgresql://HOST:5432/smartsupply_db
+      - key: POSTGRES_USER
+        sync: false  # Set manually from DB info page
+      - key: POSTGRES_PASSWORD
+        sync: false  # Set manually from DB info page
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        sync: false  # Set manually after deploying frontend
+        sync: false  # Set to your Vercel frontend URL after deploying
       - key: GEMINI_API_KEY
-        sync: false  # Set manually
+        sync: false  # Your Gemini API key (optional)
 
 databases:
   - name: smartsupply-db
