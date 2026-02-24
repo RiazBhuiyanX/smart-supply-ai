@@ -70,7 +70,12 @@ public class SecurityConfig {
                 // Enable CORS for frontend
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://localhost:5174"));
+                    String corsOrigins = System.getenv("CORS_ORIGINS");
+                    if (corsOrigins != null && !corsOrigins.isBlank()) {
+                        config.setAllowedOrigins(java.util.Arrays.asList(corsOrigins.split(",")));
+                    } else {
+                        config.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://localhost:5174"));
+                    }
                     config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(java.util.List.of("*"));
                     config.setAllowCredentials(true);
