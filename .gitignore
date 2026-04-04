@@ -21,3 +21,22 @@ node_modules/
 
 # Docker
 docker-compose.override.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.pyc
+
+# Backend Python
+backend-python/.env
