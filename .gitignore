@@ -33,10 +33,14 @@ venv/
 dist/
 build/
 
-# Django
+# Django / SQLite
 db.sqlite3
 db.sqlite3-journal
 *.pyc
+*.db
 
-# Backend Python
-backend-python/.env
+# Backend Python (Django — replaced by FastAPI)
+backend-python/
+
+# Backend FastAPI
+backend-fastapi/.env
